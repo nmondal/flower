@@ -1,8 +1,6 @@
 package flower.workflow;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -42,11 +40,11 @@ public interface DependencyWorkFlow {
 
     interface Manager {
 
-        DependencyWorkFlow load(URI uri);
+        DependencyWorkFlow load(String path);
 
         default int executorPoolSize(final @Nonnull DependencyWorkFlow flow){ return 10; }
 
-        void executorPoolSize(int size);
+        default void executorPoolSize(int size){}
 
         default Map<String,Object> run(@Nonnull  DependencyWorkFlow workFlow, final @Nonnull String runNodeName, final @Nonnull Map<String,Object> input){
             final  boolean validateParams = input.keySet().containsAll( workFlow.params().keySet());

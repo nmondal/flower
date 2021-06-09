@@ -1,6 +1,7 @@
 package flower.workflow.impl;
 
 import flower.workflow.DependencyWorkFlow;
+import zoomba.lang.core.types.ZTypes;
 
 import java.util.*;
 import java.util.function.Function;
@@ -14,7 +15,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
     String PARAMS = "params";
 
-    String NODES = "params";
+    String NODES = "nodes";
 
     interface MapFNode extends DependencyWorkFlow.FNode {
 
@@ -87,4 +88,18 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
     default Map<String, Object> params() {
         return (Map)config().getOrDefault( PARAMS, Collections.emptyMap());
     }
+
+    Manager MANAGER = path -> {
+        Object o = null;
+        if ( path.endsWith(".yaml")){
+            o = ZTypes.yaml(path,true);
+        } else if ( path.endsWith(".json")){
+            o = ZTypes.json(path,true);
+        }
+        if ( o instanceof Map ){
+            Object finalO = o;
+            return (MapDependencyWorkFlow) () -> (Map) finalO;
+        }
+        return null;
+    };
 }

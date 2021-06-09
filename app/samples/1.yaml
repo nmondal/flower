@@ -1,0 +1,12 @@
+---
+name: '1'
+nodes:
+  a:
+    body: a
+  b:
+    body: b
+  c:
+    body: c
+    depends:
+      - a
+      - b
