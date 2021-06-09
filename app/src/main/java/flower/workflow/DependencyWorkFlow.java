@@ -23,7 +23,7 @@ public interface DependencyWorkFlow {
 
         String name();
 
-        Map<String, Type> params();
+        Map<String, Object> params();
 
         default Predicate<Map<String,Object>> when(){ return TRUE; }
 
@@ -33,6 +33,8 @@ public interface DependencyWorkFlow {
 
         Set<String> dependencies();
     }
+
+    String name();
 
     Map<String,FNode> nodes();
 
