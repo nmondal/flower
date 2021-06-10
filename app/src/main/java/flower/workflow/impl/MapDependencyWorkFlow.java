@@ -17,13 +17,15 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
     String NODES = "nodes";
 
+    String TIME_OUT = "timeout";
+
+    String OWNER = "owner" ;
+
     interface MapFNode extends DependencyWorkFlow.FNode {
 
         String WHEN = "when" ;
 
         String BODY = "body" ;
-
-        String OWNER = "owner" ;
 
         String DEPENDS = "depends" ;
 
@@ -32,6 +34,11 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         @Override
         default String name() {
             return (String) config().getOrDefault(NAME, "");
+        }
+
+        @Override
+        default long timeOut() {
+            return (long) config().getOrDefault(TIME_OUT, Long.MAX_VALUE);
         }
 
         @Override
@@ -53,7 +60,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
         @Override
         default DependencyWorkFlow owner() {
-            return null;
+            return (DependencyWorkFlow) config().getOrDefault(OWNER, null);
         }
 
         @Override
@@ -71,6 +78,11 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
     }
 
     @Override
+    default long timeOut() {
+        return (long) config().getOrDefault(TIME_OUT, Long.MAX_VALUE);
+    }
+
+    @Override
     default Map<String, FNode> nodes() {
         Map nodeData = (Map)config().getOrDefault( NODES, Collections.emptyMap());
         for ( Object k : nodeData.keySet()){
@@ -78,6 +90,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
             if ( v instanceof FNode ) break;
             Map<String,Object> nodeConfig = (Map)v;
             nodeConfig.put(NAME, k);
+            nodeConfig.put(OWNER, this);
             MapFNode mapFNode = () -> nodeConfig;
             nodeData.put(k, mapFNode);
         }

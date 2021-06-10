@@ -27,12 +27,16 @@ public interface DependencyWorkFlow {
 
         default Function<Map<String,Object>,Object> body() { return IDENTITY ; }
 
+        default long timeOut(){ return Long.MAX_VALUE ; }
+
         DependencyWorkFlow owner();
 
         Set<String> dependencies();
     }
 
     String name();
+
+    default long timeOut(){ return Long.MAX_VALUE ; }
 
     Map<String,FNode> nodes();
 
