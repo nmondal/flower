@@ -17,7 +17,7 @@ public class MapWorkFlowTest {
         assertFalse(workFlow.nodes().isEmpty());
         Map<String,Object> result = MapDependencyWorkFlow.MANAGER.run(workFlow, node, new HashMap<>());
         assertNotNull(result);
-        assertFalse(result.isEmpty());
+        assertTrue( result.containsKey(node));
     }
 
     @Test
