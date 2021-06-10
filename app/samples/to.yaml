@@ -1,0 +1,19 @@
+---
+name: 'timeout'
+engine: zmb
+params:
+  n : int
+timeout: 1000
+
+nodes:
+  a:
+    body: "1"
+  b:
+    body: "2"
+  c:
+    timeout: 5
+    depends:
+      - a
+      - b
+    body: >
+      sum ( [1:n+1] ) as { $.o }

@@ -2,6 +2,7 @@ package flower.workflow.impl;
 
 import flower.Logger;
 import flower.workflow.DependencyWorkFlow;
+import zoomba.lang.core.types.ZNumber;
 import zoomba.lang.core.types.ZTypes;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
         @Override
         default long timeOut() {
-            return (long) config().getOrDefault(TIME_OUT, Long.MAX_VALUE);
+            return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
         }
 
         @Override
@@ -82,7 +83,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
     @Override
     default long timeOut() {
-        return (long) config().getOrDefault(TIME_OUT, Long.MAX_VALUE);
+        return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
     }
 
     @Override

@@ -2,11 +2,14 @@ package flower;
 
 import flower.workflow.DependencyWorkFlow;
 import flower.workflow.impl.MapDependencyWorkFlow;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
+import static flower.workflow.DependencyWorkFlow.Manager.STATUS;
 import static org.junit.Assert.*;
 
 public class MapWorkFlowTest {
@@ -51,5 +54,20 @@ public class MapWorkFlowTest {
         rNode = "*";
         result = testFile( "samples/op.yaml", rNode, params );
         assertEquals(2, result.get(rNode));
+    }
+
+    @Test
+    public void timeOutTests() {
+        final Map<String,Object> params = new HashMap<>();
+        int n = 10;
+        params.put("n", n);
+        String rNode = "c";
+        Map<String,Object> result = testFile( "samples/to.yaml", rNode, params );
+        assertEquals(n*(n+1)/2, result.get(rNode));
+        n = 10000000;
+        params.put("n", n);
+        result = testFile( "samples/to.yaml", rNode, params );
+        Assert.assertEquals(false , result.get(STATUS));
+        Assert.assertTrue(result.get(rNode) instanceof TimeoutException);
     }
 }

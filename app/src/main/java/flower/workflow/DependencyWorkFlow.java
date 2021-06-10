@@ -67,8 +67,17 @@ public interface DependencyWorkFlow {
             return result;
         }
 
-        default Map<String,Object> run(@Nonnull  DependencyWorkFlow workFlow, final @Nonnull String runNodeName, final @Nonnull Map<String,Object> input){
-            final  boolean validateParams = input.keySet().containsAll( workFlow.params().keySet());
+        default boolean validateParams( @Nonnull  DependencyWorkFlow workFlow,
+                                        final @Nonnull Map<String,Object> input ){
+            //TODO verify types
+           boolean allExists = input.keySet().containsAll( workFlow.params().keySet());
+           return allExists;
+        }
+
+        default Map<String,Object> run(@Nonnull  DependencyWorkFlow workFlow,
+                                       final @Nonnull String runNodeName,
+                                       final @Nonnull Map<String,Object> input){
+            final  boolean validateParams = validateParams(workFlow,input);
             if ( !validateParams ) throw new IllegalArgumentException( "Parameter MisMatch!" );
             final  Map<String,FNode> nodes = subGraph( workFlow, runNodeName );
             final FNode endNode = nodes.get(runNodeName);
@@ -81,6 +90,7 @@ public interface DependencyWorkFlow {
             final ExecutorService executorService = Executors.newFixedThreadPool( executorPoolSize(workFlow));
             boolean runNodeNotSubmitted = true;
             Logger.info("^ < %s > -> [%s]", workFlow.name(), runNodeName );
+            final long startTime = System.currentTimeMillis();
             while (runNodeNotSubmitted){
                 for ( Map.Entry<String,FNode> entry : nodes.entrySet() ){
                     if ( visited.contains(entry.getKey()) ) continue;
@@ -94,29 +104,37 @@ public interface DependencyWorkFlow {
 
                     try {
                         // this is how things should run
-                        executorService.submit(
-                                () -> {
-                                    Logger.info("+ [%s]" , nodeName );
-                                    try {
-                                        Object res = curNode.body().apply( contextMemory);
-                                        contextMemory.put( nodeName, res);
-                                        Logger.info("- [%s]", nodeName);
-                                    }catch ( Throwable t){
-                                       Logger.error(t, "! [%s]", nodeName );
-                                    }
-                                    visited.add( nodeName );
-                                }
-                        );
+                        executorService.invokeAll(
+                                Collections.singletonList(
+                                        () -> {
+                                            Logger.info("+ [%s]", nodeName);
+                                            try {
+                                                Object res = curNode.body().apply(contextMemory);
+                                                contextMemory.put(nodeName, res);
+                                                Logger.info("- [%s]", nodeName);
+                                            } catch (Throwable t) {
+                                                contextMemory.put(nodeName, t);
+                                                Logger.error(t, "! [%s]", nodeName);
+                                            }
+                                            visited.add(nodeName);
+                                            return nodeName;
+                                        }
+                                ), curNode.timeOut(), TimeUnit.MILLISECONDS );
                         submitted.add(entry.getKey());
-                    }catch (RejectedExecutionException re){
-
+                    }catch (RejectedExecutionException | InterruptedException re){
+                        Logger.error(re, "* [%s]", nodeName );
                     }
                 }
                 runNodeNotSubmitted = !submitted.contains(runNodeName);
             }
             executorService.shutdown();
+            final long timeLeftToWait = workFlow.timeOut() - System.currentTimeMillis()  + startTime;
             try {
-                final boolean t = executorService.awaitTermination( 1000L, TimeUnit.MILLISECONDS);
+                final boolean t = executorService.awaitTermination(Math.max(timeLeftToWait, 1L), TimeUnit.MILLISECONDS);
+                if ( !t){
+                    executorService.shutdownNow();
+                    contextMemory.put(runNodeName, new TimeoutException() );
+                }
                 contextMemory.put(STATUS, t);
             }catch ( InterruptedException ie){
                 Logger.warn("! < %s > ", workFlow.name() );

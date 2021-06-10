@@ -1,7 +1,6 @@
 package flower.workflow.impl;
 
-import static zoomba.lang.core.interpreter.ZContext.FunctionContext;
-import static zoomba.lang.core.interpreter.ZContext.ArgContext;
+import static zoomba.lang.core.interpreter.ZContext.*;
 import static zoomba.lang.core.operations.Function.MonadicContainer;
 
 import zoomba.lang.core.interpreter.ZScript;
@@ -47,7 +46,7 @@ public interface DynamicExecution {
                 @Override
                 public Object apply(Map<String, Object> input) {
                     FunctionContext ctx =
-                            new FunctionContext(null, ArgContext.EMPTY_ARGS_CONTEXT);
+                            new FunctionContext(EMPTY_CONTEXT, ArgContext.EMPTY_ARGS_CONTEXT);
                     input.forEach(ctx::set);
                     script.runContext(ctx);
                     MonadicContainer mc = script.execute();
@@ -64,7 +63,7 @@ public interface DynamicExecution {
                 @Override
                 public boolean test(Map<String, Object> input) {
                     FunctionContext ctx =
-                            new FunctionContext(null, ArgContext.EMPTY_ARGS_CONTEXT);
+                            new FunctionContext(EMPTY_CONTEXT, ArgContext.EMPTY_ARGS_CONTEXT);
                     input.forEach(ctx::set);
                     script.runContext(ctx);
                     MonadicContainer mc = script.execute();
