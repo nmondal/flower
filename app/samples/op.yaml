@@ -1,0 +1,28 @@
+---
+name: 'ops'
+engine: zmb
+
+params:
+  x : int
+  y : int
+
+nodes:
+  a:
+    body: x
+  b:
+    body: y
+  "+":
+    body: "a + b"
+    depends:
+      - a
+      - b
+  "-":
+    body: "a - b"
+    depends:
+      - a
+      - b
+  "*":
+    body: "a * b"
+    depends:
+      - a
+      - b

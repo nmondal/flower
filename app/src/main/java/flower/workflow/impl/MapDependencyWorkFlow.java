@@ -1,5 +1,6 @@
 package flower.workflow.impl;
 
+import flower.Logger;
 import flower.workflow.DependencyWorkFlow;
 import zoomba.lang.core.types.ZTypes;
 
@@ -33,7 +34,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
         @Override
         default String name() {
-            return (String) config().getOrDefault(NAME, "");
+            return config().getOrDefault(NAME, "").toString();
         }
 
         @Override
@@ -49,13 +50,15 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         @Override
         default Predicate<Map<String, Object>> when() {
             DynamicExecution e = DynamicExecution.engine( (String) config().getOrDefault(ENGINE,""));
-            return e.predicate((String) config().getOrDefault(WHEN,"") );
+            Logger.info("# %s ?[%s]", e.engine(), name());
+            return e.predicate( config().getOrDefault(WHEN,"true").toString());
         }
 
         @Override
         default Function<Map<String, Object>, Object> body() {
-            DynamicExecution e = DynamicExecution.engine( (String) config().getOrDefault(ENGINE,""));
-            return e.function((String) config().getOrDefault(BODY,"") );
+            DynamicExecution e = DynamicExecution.engine( config().getOrDefault(ENGINE,"").toString());
+            Logger.info("# %s =[%s]", e.engine(), name());
+            return e.function(config().getOrDefault(BODY,"").toString());
         }
 
         @Override
@@ -85,12 +88,16 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
     @Override
     default Map<String, FNode> nodes() {
         Map nodeData = (Map)config().getOrDefault( NODES, Collections.emptyMap());
+        String engineName = config().getOrDefault(ENGINE,"").toString();
+
         for ( Object k : nodeData.keySet()){
             Object v = nodeData.get(k);
             if ( v instanceof FNode ) break;
             Map<String,Object> nodeConfig = (Map)v;
             nodeConfig.put(NAME, k);
             nodeConfig.put(OWNER, this);
+            nodeConfig.put(ENGINE, engineName);
+
             MapFNode mapFNode = () -> nodeConfig;
             nodeData.put(k, mapFNode);
         }
