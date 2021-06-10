@@ -1,0 +1,22 @@
+---
+name: '2'
+nodes:
+  a:
+    body: a
+  b:
+    body: b
+  c:
+    body: c
+    depends:
+      - a
+      - b
+  d:
+    body: d
+    depends:
+      - a
+      - b
+      - c
+  e:
+    body: e
+    depends:
+      - a

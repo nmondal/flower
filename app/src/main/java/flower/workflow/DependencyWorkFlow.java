@@ -53,7 +53,18 @@ public interface DependencyWorkFlow {
         default void executorPoolSize(int size){}
 
         default Map<String,FNode> subGraph( @Nonnull  DependencyWorkFlow workFlow, final @Nonnull String runNodeName){
-            return workFlow.nodes();
+            final  Map<String,FNode> nodes = workFlow.nodes();
+            Stack<String> stack = new Stack<>();
+            Map<String,FNode> result = new HashMap<>();
+            stack.push(runNodeName);
+            while ( !stack.isEmpty() ){
+                final String name = stack.pop();
+                FNode me = nodes.get(name);
+                result.put(name, me);
+                if ( me == null ) throw new IllegalArgumentException( "Node does not exist!" );
+                me.dependencies().forEach(stack::push);
+            }
+            return result;
         }
 
         default Map<String,Object> run(@Nonnull  DependencyWorkFlow workFlow, final @Nonnull String runNodeName, final @Nonnull Map<String,Object> input){
