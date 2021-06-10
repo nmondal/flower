@@ -59,12 +59,14 @@ public class MapWorkFlowTest {
     @Test
     public void timeOutTests() {
         final Map<String,Object> params = new HashMap<>();
-        int n = 10;
+        long n = 10;
         params.put("n", n);
         String rNode = "c";
         Map<String,Object> result = testFile( "samples/to.yaml", rNode, params );
-        assertEquals(n*(n+1)/2, result.get(rNode));
-        n = 10000000;
+        Assert.assertEquals(true , result.get(rNode));
+        Assert.assertEquals(true , result.get(STATUS));
+        // this should time out...
+        n = 10000;
         params.put("n", n);
         result = testFile( "samples/to.yaml", rNode, params );
         Assert.assertEquals(false , result.get(STATUS));

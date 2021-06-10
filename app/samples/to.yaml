@@ -3,7 +3,7 @@ name: 'timeout'
 engine: zmb
 params:
   n : int
-timeout: 1000
+timeout: 100000
 
 nodes:
   a:
@@ -11,9 +11,10 @@ nodes:
   b:
     body: "2"
   c:
-    timeout: 5
+    timeout: 20
     depends:
       - a
       - b
     body: >
-      sum ( [1:n+1] ) as { $.o }
+      join([0:n],[0:n],[0:n]) ; true
+
