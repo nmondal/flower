@@ -20,7 +20,6 @@ public class MapWorkFlowTest {
         assertFalse(workFlow.nodes().isEmpty());
         Map<String,Object> result = MapDependencyWorkFlow.MANAGER.run(workFlow, node, params);
         assertNotNull(result);
-        assertTrue( result.containsKey(node));
         return result;
     }
 
@@ -81,6 +80,7 @@ public class MapWorkFlowTest {
         String rNode = "+";
         Map<String,Object> result = testFile( "samples/script_error.yaml", rNode, params );
         Assert.assertEquals(false , result.get(STATUS));
-        Assert.assertTrue(result.get(rNode) instanceof RuntimeException);
+        Assert.assertTrue(result.get("b") instanceof RuntimeException);
+        assertFalse(result.containsKey("+")); // should not run any further node
     }
 }

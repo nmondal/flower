@@ -138,8 +138,9 @@ public interface DependencyWorkFlow {
                     } catch (RejectedExecutionException re) {
                         Logger.error(re, "* [%s]", nodeName);
                     }
+                    if ( contextMemory.get(STATUS) == Boolean.FALSE ){ break; }
                 }
-                runNodeNotSubmitted = !submitted.contains(runNodeName);
+                runNodeNotSubmitted = !submitted.contains(runNodeName) && contextMemory.get(STATUS) == Boolean.TRUE ;
             }
             executorService.shutdown();
             final long timeLeftToWait = workFlow.timeOut() - System.currentTimeMillis() + startTime;
