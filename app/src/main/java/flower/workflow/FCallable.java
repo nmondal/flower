@@ -23,8 +23,8 @@ public class FCallable<T> implements Callable<T> {
     public FCallable(long timeOut, Function<FCallable<T>,T> body ) {
         m = body;
         this.timeOut = timeOut;
+        wasTimeOut = false;
         t = new Thread(() -> {
-            wasTimeOut = true;
             value = m.apply( this);
             wasTimeOut = false;
             callerThread.interrupt();
@@ -37,6 +37,7 @@ public class FCallable<T> implements Callable<T> {
         t.start();
         try {
             Thread.sleep(timeOut);
+            wasTimeOut = true;
             if ( t.isAlive() ){
                 t.stop();
             }

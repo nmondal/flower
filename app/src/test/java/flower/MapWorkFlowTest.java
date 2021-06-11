@@ -72,4 +72,15 @@ public class MapWorkFlowTest {
         Assert.assertEquals(false , result.get(STATUS));
         Assert.assertTrue(result.get(rNode) instanceof TimeoutException);
     }
+
+    @Test
+    public void scriptErrorTest() {
+        final Map<String,Object> params = new HashMap<>();
+        params.put("x", 1);
+        params.put("y", 2);
+        String rNode = "+";
+        Map<String,Object> result = testFile( "samples/script_error.yaml", rNode, params );
+        Assert.assertEquals(false , result.get(STATUS));
+        Assert.assertTrue(result.get(rNode) instanceof RuntimeException);
+    }
 }
