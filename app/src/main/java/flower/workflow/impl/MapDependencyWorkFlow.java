@@ -38,6 +38,10 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
             return config().getOrDefault(NAME, "").toString();
         }
 
+        default String engine() {
+            return (String) config().getOrDefault(ENGINE, "");
+        }
+
         @Override
         default long timeOut() {
             return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
@@ -50,14 +54,14 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
         @Override
         default Predicate<Map<String, Object>> when() {
-            DynamicExecution e = DynamicExecution.engine( (String) config().getOrDefault(ENGINE,""));
+            DynamicExecution e = DynamicExecution.engine(engine());
             Logger.info("# %s ?[%s]", e.engine(), name());
             return e.predicate( config().getOrDefault(WHEN,"true").toString());
         }
 
         @Override
         default Function<Map<String, Object>, Object> body() {
-            DynamicExecution e = DynamicExecution.engine( config().getOrDefault(ENGINE,"").toString());
+            DynamicExecution e = DynamicExecution.engine(engine());
             Logger.info("# %s =[%s]", e.engine(), name());
             return e.function(config().getOrDefault(BODY,"").toString());
         }
@@ -81,6 +85,10 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         return (String) config().getOrDefault(NAME, "");
     }
 
+    default String engine() {
+        return (String) config().getOrDefault(ENGINE, "");
+    }
+
     @Override
     default long timeOut() {
         return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
@@ -89,7 +97,7 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
     @Override
     default Map<String, FNode> nodes() {
         Map nodeData = (Map)config().getOrDefault( NODES, Collections.emptyMap());
-        String engineName = config().getOrDefault(ENGINE,"").toString();
+        String engineName = engine();
 
         for ( Object k : nodeData.keySet()){
             Object v = nodeData.get(k);
