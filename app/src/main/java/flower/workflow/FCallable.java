@@ -2,13 +2,11 @@ package flower.workflow;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class FCallable<T> implements Callable<T> {
 
-    public final Supplier<T> m;
-
-    public final Runnable e;
+    public final Function<FCallable<T>,T> m;
 
     public final Thread t;
 
@@ -18,15 +16,17 @@ public class FCallable<T> implements Callable<T> {
 
     public final long timeOut;
 
-    private boolean wasDone = false;
+    private boolean wasTimeOut;
 
-    public FCallable(long timeOut, Supplier<T> body , Runnable timeOutHook) {
+    public boolean wasTimeOut(){ return wasTimeOut; }
+
+    public FCallable(long timeOut, Function<FCallable<T>,T> body ) {
         m = body;
-        e = timeOutHook;
         this.timeOut = timeOut;
         t = new Thread(() -> {
-            value = m.get();
-            wasDone = true;
+            wasTimeOut = true;
+            value = m.apply( this);
+            wasTimeOut = false;
             callerThread.interrupt();
         });
     }
@@ -42,8 +42,7 @@ public class FCallable<T> implements Callable<T> {
             }
         } catch (InterruptedException ie) {
         }
-        if ( !wasDone ) {
-            e.run();
+        if ( wasTimeOut) {
             throw new TimeoutException();
         }
         return value;

@@ -118,28 +118,21 @@ public interface DependencyWorkFlow {
                         // this is how things should run
                         executorService.submit(new FCallable<>(
                                 curNode.timeOut(),
-                                () -> {
+                                (me) -> {
                                     Logger.info("+ [%s]", nodeName);
                                     try {
                                         Object res = curNode.body().apply(contextMemory);
-                                        if ( !contextMemory.containsKey(nodeName)) {
-                                            contextMemory.put(nodeName, res);
-                                            Logger.info("- [%s]", nodeName);
-                                        }
+                                        contextMemory.put(nodeName, res);
+                                        Logger.info("- [%s]", nodeName);
                                     } catch (Throwable t) {
+                                        t = me.wasTimeOut() ? new TimeoutException() : t;
                                         contextMemory.put(nodeName, t);
                                         contextMemory.put(STATUS, false);
                                         Logger.error(t, "! [%s]", nodeName);
                                     }
                                     visited.add(nodeName);
                                     return nodeName;
-                                },
-                                () ->{
-                                    Throwable t = new TimeoutException();
-                                    contextMemory.put(nodeName, t);
-                                    contextMemory.put(STATUS, false);
-                                    Logger.error(t, "! [%s]", nodeName);
-                                }
+                                } // end of function
                         ));
                         submitted.add(entry.getKey());
                     } catch (RejectedExecutionException re) {

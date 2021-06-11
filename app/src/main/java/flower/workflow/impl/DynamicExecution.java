@@ -38,6 +38,16 @@ public interface DynamicExecution {
 
     DynamicExecution ZMB = new DynamicExecution() {
 
+        private Object zmb( ZScript script, Map<String, Object> input){
+            FunctionContext ctx =
+                    new FunctionContext(EMPTY_CONTEXT, ArgContext.EMPTY_ARGS_CONTEXT);
+            input.forEach(ctx::set);
+            script.runContext(ctx);
+            MonadicContainer mc = script.execute();
+            if ( mc.value() instanceof RuntimeException ) throw (RuntimeException)mc.value();
+            return mc.value();
+        }
+
         @Override
         public Function<Map<String, Object>, Object> function(String s) {
             return new Function<>() {
@@ -45,12 +55,7 @@ public interface DynamicExecution {
 
                 @Override
                 public Object apply(Map<String, Object> input) {
-                    FunctionContext ctx =
-                            new FunctionContext(EMPTY_CONTEXT, ArgContext.EMPTY_ARGS_CONTEXT);
-                    input.forEach(ctx::set);
-                    script.runContext(ctx);
-                    MonadicContainer mc = script.execute();
-                    return mc.value();
+                    return zmb(script,input);
                 }
             };
         }
@@ -62,12 +67,8 @@ public interface DynamicExecution {
 
                 @Override
                 public boolean test(Map<String, Object> input) {
-                    FunctionContext ctx =
-                            new FunctionContext(EMPTY_CONTEXT, ArgContext.EMPTY_ARGS_CONTEXT);
-                    input.forEach(ctx::set);
-                    script.runContext(ctx);
-                    MonadicContainer mc = script.execute();
-                    return ZTypes.bool(mc.value(),false);
+                    Object o = zmb(script, input);
+                    return ZTypes.bool(o,false);
                 }
             };
         }
