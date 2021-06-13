@@ -68,7 +68,8 @@ public class PerfTest {
     }
 
     @Test
-    public void largeFlowTest(){
-
+    public void largeFlowTest() throws Exception {
+        final String genWFile = DotTest.genWorkFlow( 10, 10 );
+        testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 30.0 );
     }
 }
