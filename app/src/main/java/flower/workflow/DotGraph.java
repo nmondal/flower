@@ -9,6 +9,10 @@ public final class DotGraph {
         Set<String> topLevel = new HashSet<>();
         Set<String> tmpLeaf = new HashSet<>(map.keySet());
         for ( DependencyWorkFlow.FNode node : map.values()){
+            // for well formed graphs, nodes must be defined
+            String nodeName = String.format( "%s;%n", node.name());
+            sb.append( nodeName );
+
             if ( node.dependencies().isEmpty() ){
                 topLevel.add( node.name());
             }
