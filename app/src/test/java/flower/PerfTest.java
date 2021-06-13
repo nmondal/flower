@@ -41,8 +41,11 @@ public class PerfTest {
         elapsedTime.sort((x, y) -> (int) Math.signum(x - y));
         int inx = (int) (times * 0.9);
         double _9pc = elapsedTime.get(inx);
-        System.out.printf("Time Taken < %s > -> [%s] with %s (ns) 90%% : %.4f %n",
-                path, node, ZTypes.jsonString(params), _9pc);
+        inx = (int) (times * 0.5);
+        double _5pc = elapsedTime.get(inx);
+
+        System.out.printf("Time Taken < %s > -> [%s] with %s (ns) (50%% : %.4f) (90%% : %.4f) %n",
+                path, node, ZTypes.jsonString(params), _5pc, _9pc);
         Assert.assertTrue("90% is slower than expected", cutOfMS > _9pc);
     }
 
