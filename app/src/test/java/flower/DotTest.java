@@ -36,7 +36,7 @@ public class DotTest {
             for (int j = 0; j < width; j++) {
                 String nodeName = String.format("L_%d_%d", i, j);
                 int previousLevelSize = previousLevel.size();
-                int numParents = previousLevelSize > 0 ? r.nextInt( previousLevel.size()) : 0 ;
+                int numParents = previousLevelSize > 0 ? r.nextInt( previousLevel.size() + 1 ) : 0 ;
                 Set<String> myParents = new HashSet<>();
                 for ( int k = 0; k < numParents; k++ ){
                     int parentInx = r.nextInt( previousLevelSize );
