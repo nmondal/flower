@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@SuppressWarnings("unchecked")
 public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
     String ENGINE = "engine" ;

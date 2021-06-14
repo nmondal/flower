@@ -32,6 +32,7 @@ public class FCallable<T> implements Callable<T> {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public T call() throws Exception {
         callerThread = Thread.currentThread();
         t.start();
@@ -39,6 +40,7 @@ public class FCallable<T> implements Callable<T> {
             Thread.sleep(timeOut);
             wasTimeOut = true;
             if ( t.isAlive() ){
+                // TODO, is there a better way? God save us
                 t.stop();
             }
         } catch (InterruptedException ie) {

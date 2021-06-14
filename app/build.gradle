@@ -10,6 +10,11 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
 
 repositories {
     // Use Maven Central for resolving dependencies.

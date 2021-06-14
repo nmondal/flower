@@ -50,7 +50,7 @@ public interface DynamicExecution {
 
         @Override
         public Function<Map<String, Object>, Object> function(String s) {
-            return new Function<>() {
+            return new Function<Map<String, Object>, Object>() {
                 final ZScript script = new ZScript(s);
 
                 @Override
@@ -62,7 +62,7 @@ public interface DynamicExecution {
 
         @Override
         public Predicate<Map<String, Object>> predicate(String s) {
-            return new Predicate<>() {
+            return new Predicate<Map<String, Object>>() {
                 final ZScript script = new ZScript(s);
 
                 @Override

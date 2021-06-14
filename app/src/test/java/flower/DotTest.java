@@ -5,12 +5,11 @@ import flower.workflow.impl.MapDependencyWorkFlow;
 import org.junit.Assert;
 import org.junit.Test;
 import zoomba.lang.core.types.ZTypes;
-
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
 import java.util.*;
+
+import static flower.workflow.DotGraph.writeFile;
 
 public class DotTest {
     public static void buildDot(String workflowFile, String outFile) {
@@ -53,9 +52,9 @@ public class DotTest {
         }
         final String data = ZTypes.yamlString( config);
         final String path = "samples/gen/" + flowName  + ".yaml";
-        Path p =  Path.of(path);
-        Files.writeString( p, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        return path;
+        Path p =  writeFile(path, data);
+        Assert.assertNotNull(p);
+        return p.toString();
     }
 
     @Test

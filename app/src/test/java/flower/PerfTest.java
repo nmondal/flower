@@ -57,22 +57,22 @@ public class PerfTest {
     @Test
     public void scriptingWorkFlowTest() {
         // tiny work
-        Map<String, Object> params = new HashMap<>() {{
-            put("x", 1);
-            put("y", 2);
-        }};
+        Map<String, Object> params = new HashMap<>();
+        // it is absolutely bad idea NOT to have an inline map. in Java.
+        params.put("x", 1);
+        params.put("y", 2);
+
         testFile("samples/op.yaml", "+", params, 500, 5.0);
         // more work
-        params = new HashMap<>() {{
-            put("x", new BigDecimal("12313132131321.1321312321313"));
-            put("y", new BigDecimal("12313132131321.1321312321313"));
-        }};
+        params.put("x", new BigDecimal("12313132131321.1321312321313"));
+        params.put("y", new BigDecimal("12313132131321.1321312321313"));
+
         testFile("samples/op.yaml", "+", params, 500, 5.0);
     }
 
     @Test
     public void largeFlowTest() throws Exception {
-        final String genWFile = DotTest.genWorkFlow( 10, 10 );
-        testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 30.0 );
+        final String genWFile = DotTest.genWorkFlow(10, 10);
+        testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 30.0);
     }
 }
