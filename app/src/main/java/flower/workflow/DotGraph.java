@@ -21,10 +21,11 @@ public final class DotGraph {
             for (String name : node.dependencies()) {
                 String edge = String.format("%s -> %s;%n", name, node.name());
                 sb.append(edge);
-                tmpLeaf.add(name);
+                // found this as some parent, so it can not be leaf
+                tmpLeaf.remove(name);
             }
         }
-        tmpLeaf.removeAll(topLevel);
+
         // now we have leaf nodes
         for (String name : topLevel) {
             String edge = String.format("start -> %s;%n", name);

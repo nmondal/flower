@@ -5,6 +5,8 @@ import flower.workflow.impl.MapDependencyWorkFlow;
 import org.junit.Assert;
 import org.junit.Test;
 import zoomba.lang.core.types.ZTypes;
+
+import java.io.File;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
@@ -66,8 +68,19 @@ public class DotTest {
     }
 
     @Test
+    public void tmpDotTest() {
+        File genDir = new File( "samples/gen");
+        for ( File f : genDir.listFiles() ){
+            if ( f.getName().endsWith(".yaml")){
+                 String fileName = f.getPath();
+                buildDot(fileName,  fileName + ".dot");
+            }
+        }
+    }
+
+    @Test
     public void dotOnLargeYamlTest() throws Exception {
-        String genFile = genWorkFlow( 4, 10 );
+        String genFile = genWorkFlow( 10, 10 );
         buildDot(genFile, genFile + ".dot" );
     }
 }
