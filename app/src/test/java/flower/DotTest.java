@@ -20,7 +20,7 @@ public class DotTest {
         }
     }
 
-    public static String genWorkFlow(int maxLevel, int maxWidth) throws Exception {
+    public static String genWorkFlow(int maxLevel, int maxWidth) {
         final String flowName = String.valueOf(System.nanoTime()) ;
         List<String> previousLevel = Collections.emptyList();
         Random r = new SecureRandom();
@@ -35,12 +35,15 @@ public class DotTest {
             for (int j = 0; j < width; j++) {
                 String nodeName = String.format("L_%d_%d", i, j);
                 int previousLevelSize = previousLevel.size();
-                int numParents = previousLevelSize > 0 ? r.nextInt( previousLevel.size() + 1 ) : 0 ;
                 Set<String> myParents = new HashSet<>();
-                for ( int k = 0; k < numParents; k++ ){
-                    int parentInx = r.nextInt( previousLevelSize );
-                    String parentName = String.format("L_%d_%d", i-1, parentInx);
-                    myParents.add(parentName);
+                while ( i != 0 && myParents.isEmpty() ){
+                    int numParents = previousLevelSize > 0 ? r.nextInt( previousLevel.size() + 1 ) : 0 ;
+                    // ensure we get at least 1 parent for each i'th level i != 0
+                    for ( int k = 0; k < numParents; k++ ){
+                        int parentInx = r.nextInt( previousLevelSize );
+                        String parentName = String.format("L_%d_%d", i-1, parentInx);
+                        myParents.add(parentName);
+                    }
                 }
                 Map<String,Object> node = new HashMap<>();
                 node.put( MapDependencyWorkFlow.MapFNode.BODY, nodeName);
@@ -59,7 +62,7 @@ public class DotTest {
 
     @Test
     public void dotOnJSONTest() {
-        buildDot("samples/1.json", "samples/1.dot");
+        buildDot("samples/1.json", "samples/gen/1.dot");
     }
 
     @Test
