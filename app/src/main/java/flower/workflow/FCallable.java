@@ -1,7 +1,6 @@
 package flower.workflow;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 public class FCallable<T> implements Callable<T> {
@@ -44,10 +43,9 @@ public class FCallable<T> implements Callable<T> {
                 t.stop();
             }
         } catch (InterruptedException ie) {
+            wasTimeOut = false ;
         }
-        if ( wasTimeOut) {
-            throw new TimeoutException();
-        }
+        t.join();
         return value;
     }
 }
