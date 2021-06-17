@@ -5,6 +5,7 @@ import flower.workflow.DependencyWorkFlow;
 import zoomba.lang.core.types.ZNumber;
 import zoomba.lang.core.types.ZTypes;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -23,6 +24,22 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
     String TIME_OUT = "timeout";
 
     String OWNER = "owner" ;
+
+    String LOAD_DIR = "_dir" ;
+
+    String ABS_FILE = "_file" ;
+
+    String FROM_FILE = "@" ;
+
+    String RELATIVE_PATH = "_/" ;
+
+    static String fromFile( String filePath, String baseDir){
+        return "" ;
+    }
+
+    default String dir() {
+        return (String) config().getOrDefault(LOAD_DIR, "");
+    }
 
     interface MapFNode extends DependencyWorkFlow.FNode {
 
@@ -53,18 +70,33 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
             return (Map) config().getOrDefault(PARAMS, Collections.emptyMap());
         }
 
+        default DynamicExecution.FileOrString getContent(final String propName, String defaultValue){
+            String propValue = config().getOrDefault(propName,defaultValue).toString();
+            if ( propValue.startsWith( FROM_FILE ) ){
+                propValue = propValue.substring( FROM_FILE.length() );
+                if ( propValue.startsWith( RELATIVE_PATH ) ){
+                    propValue = propValue.substring( RELATIVE_PATH.length() );
+                    propValue = ((MapDependencyWorkFlow)owner()).dir() + "/" + propValue ;
+                }
+                return DynamicExecution.FileOrString.file( propValue);
+            }
+            return DynamicExecution.FileOrString.string(propValue);
+        }
+
         @Override
         default Predicate<Map<String, Object>> when() {
             DynamicExecution e = DynamicExecution.engine(engine());
             Logger.info("# %s ?[%s]", e.engine(), name());
-            return e.predicate( config().getOrDefault(WHEN,"true").toString());
+            final DynamicExecution.FileOrString when = getContent(WHEN,"true");
+            return e.predicate(when);
         }
 
         @Override
         default Function<Map<String, Object>, Object> body() {
             DynamicExecution e = DynamicExecution.engine(engine());
             Logger.info("# %s =[%s]", e.engine(), name());
-            return e.function(config().getOrDefault(BODY,"").toString());
+            final DynamicExecution.FileOrString body = getContent(BODY,"");
+            return e.function(body);
         }
 
         @Override
@@ -128,7 +160,11 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         }
         if ( o instanceof Map ){
             Object finalO = o;
-            return (MapDependencyWorkFlow) () -> (Map) finalO;
+            File f = new File(path);
+            final Map m = (Map) finalO;
+            m.put( ABS_FILE, f.getAbsolutePath());
+            m.put ( LOAD_DIR, f.getAbsoluteFile().getParentFile().getAbsolutePath());
+            return (MapDependencyWorkFlow) () -> m;
         }
         return null;
     };

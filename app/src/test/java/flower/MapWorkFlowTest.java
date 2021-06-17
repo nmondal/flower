@@ -39,13 +39,12 @@ public class MapWorkFlowTest {
         assertFalse(result.containsKey("b"));
     }
 
-    @Test
-    public void opTests() {
+    private void operationsTest(String yamlFile){
         final Map<String,Object> params = new HashMap<>();
         params.put("x", 1);
         params.put("y", 2);
         String rNode = "+";
-        Map<String,Object> result = testFile( "samples/op.yaml", rNode, params );
+        Map<String,Object> result = testFile( yamlFile, rNode, params );
         assertEquals(3, result.get(rNode));
         rNode = "-";
         result = testFile( "samples/op.yaml", rNode, params );
@@ -53,6 +52,16 @@ public class MapWorkFlowTest {
         rNode = "*";
         result = testFile( "samples/op.yaml", rNode, params );
         assertEquals(2, result.get(rNode));
+    }
+
+    @Test
+    public void opTests() {
+        operationsTest("samples/op.yaml");
+    }
+
+    @Test
+    public void externTests() {
+        operationsTest("samples/extern.yaml");
     }
 
     @Test

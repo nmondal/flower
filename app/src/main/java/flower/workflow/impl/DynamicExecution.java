@@ -6,27 +6,48 @@ import static zoomba.lang.core.operations.Function.MonadicContainer;
 import zoomba.lang.core.interpreter.ZScript;
 import zoomba.lang.core.types.ZTypes;
 
+import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface DynamicExecution {
 
-    Function<Map<String,Object>,Object> function(String s);
+    class FileOrString{
+        private final File f;
+        private final String s;
+        private FileOrString(String s){
+            f = null;
+            this.s = s;
+        }
+        private FileOrString(File f){
+            this.f = f;
+            s = null;
+        }
+        public static FileOrString file(@Nonnull String f){
+            return new FileOrString( new File(f));
+        }
+        public static FileOrString string(@Nonnull String s){
+            return new FileOrString(s);
+        }
+    }
 
-    Predicate<Map<String,Object>> predicate(String s);
+    Function<Map<String,Object>,Object> function(FileOrString fs);
+
+    Predicate<Map<String,Object>> predicate(FileOrString fs);
 
     String engine();
 
     DynamicExecution DUMMY = new DynamicExecution() {
         //TODO this is for dry running and logging workflow
         @Override
-        public Function<Map<String, Object>, Object> function(String s) {
-            return stringObjectMap -> s ;
+        public Function<Map<String, Object>, Object> function(FileOrString fs) {
+            return stringObjectMap -> fs.s ;
         }
 
         @Override
-        public Predicate<Map<String, Object>> predicate(String s) {
+        public Predicate<Map<String, Object>> predicate(FileOrString fs) {
             return stringObjectMap -> true ;
         }
 
@@ -49,10 +70,9 @@ public interface DynamicExecution {
         }
 
         @Override
-        public Function<Map<String, Object>, Object> function(String s) {
+        public Function<Map<String, Object>, Object> function(FileOrString fs) {
             return new Function<Map<String, Object>, Object>() {
-                final ZScript script = new ZScript(s);
-
+                final ZScript script = fs.s != null ? new ZScript( fs.s ) : new ZScript( fs.f.getAbsolutePath(), null, "" ) ;
                 @Override
                 public Object apply(Map<String, Object> input) {
                     return zmb(script,input);
@@ -61,9 +81,9 @@ public interface DynamicExecution {
         }
 
         @Override
-        public Predicate<Map<String, Object>> predicate(String s) {
+        public Predicate<Map<String, Object>> predicate(FileOrString fs) {
             return new Predicate<Map<String, Object>>() {
-                final ZScript script = new ZScript(s);
+                final ZScript script = fs.s != null ? new ZScript( fs.s ) : new ZScript( fs.f.getAbsolutePath(), null, "" ) ;
 
                 @Override
                 public boolean test(Map<String, Object> input) {

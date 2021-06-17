@@ -1,0 +1,28 @@
+---
+name: 'ops_extern'
+engine: zmb
+
+params:
+  x : int
+  y : int
+
+nodes:
+  a:
+    body: "@_/zmb/a.zm"
+  b:
+    body: "@_/zmb/b.zm"
+  "+":
+    body: "a + b"
+    depends:
+      - a
+      - b
+  "-":
+    body: "a - b"
+    depends:
+      - a
+      - b
+  "*":
+    body: "a * b"
+    depends:
+      - a
+      - b
