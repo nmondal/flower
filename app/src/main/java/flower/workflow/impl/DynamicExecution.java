@@ -8,6 +8,10 @@ import zoomba.lang.core.types.ZTypes;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -25,6 +29,18 @@ public interface DynamicExecution {
             this.f = f;
             s = null;
         }
+
+        public String content(){
+            if ( s!=null ) return s;
+            try {
+                Path p = FileSystems.getDefault().getPath(f.getAbsolutePath());
+                byte[] bytes = Files.readAllBytes(p);
+                return new String(bytes, StandardCharsets.UTF_8);
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+
         public static FileOrString file(@Nonnull String f){
             return new FileOrString( new File(f));
         }
@@ -102,7 +118,13 @@ public interface DynamicExecution {
     
     static DynamicExecution engine(String name){
         switch ( name ){
-            case "zmb" : return ZMB;
+            case "python":
+            case "groovy":
+            case "js":
+            case "javascript":
+                return JSR223.using(name);
+            case "zmb" :
+                return ZMB;
             default:
                 return DUMMY;
         }

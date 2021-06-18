@@ -27,7 +27,11 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:30.0-jre'
+    /* JSR 223 languages */
     implementation group: 'org.zoomba-lang', name: 'zoomba.lang.core', version: '0.2'
+    implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.8', ext: 'pom'
+    implementation group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '3.0.8'
+    implementation group: 'org.python', name: 'jython-standalone', version: '2.7.2'
 
 }
 

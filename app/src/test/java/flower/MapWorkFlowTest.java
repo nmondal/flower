@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 public class MapWorkFlowTest {
 
-    static Map<String,Object> testFile(final String path, final String node, final Map<String,Object> params){
+    public static Map<String,Object> testFile(final String path, final String node, final Map<String,Object> params){
         DependencyWorkFlow workFlow = MapDependencyWorkFlow.MANAGER.load(path);
         assertNotNull(workFlow);
         assertFalse(workFlow.nodes().isEmpty());

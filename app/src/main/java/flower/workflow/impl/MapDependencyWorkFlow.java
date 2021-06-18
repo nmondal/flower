@@ -122,6 +122,15 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         return (String) config().getOrDefault(ENGINE, "");
     }
 
+    default void engine(String engine){
+        Map<String,Object> c = config();
+        c.put(ENGINE,engine);
+        nodes().forEach((key, value) -> {
+            MapFNode node = (MapFNode) value;
+            node.config().put(ENGINE, engine);
+        });
+    }
+
     @Override
     default long timeOut() {
         return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
