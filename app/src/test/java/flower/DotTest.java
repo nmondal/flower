@@ -43,7 +43,7 @@ public class DotTest {
                 if ( previousLevelSize != 0  ){
                     //get at least 1 parent from previous level
                     int parentInx = r.nextInt( previousLevelSize );
-                    String parentName = String.format("L_%d_%d", i-1, parentInx);
+                    String parentName = previousLevel.get(parentInx);
                     myParents.add(parentName);
                     // now, get some random parents from all above levels
                     int numParents = r.nextInt( maxWidth );
