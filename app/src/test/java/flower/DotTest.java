@@ -25,6 +25,7 @@ public class DotTest {
     public static String genWorkFlow(int maxLevel, int maxWidth) {
         final String flowName = String.valueOf(System.nanoTime()) ;
         List<String> previousLevel = Collections.emptyList();
+        List<String> allAboveLevel = new ArrayList<>();
         Random r = new SecureRandom();
         Map<String, Object> config = new HashMap<>();
         Map<String,Object> nodeMap = new HashMap<>() ;
@@ -36,17 +37,23 @@ public class DotTest {
             int width = r.nextInt(maxWidth + 1) + 1;
             for (int j = 0; j < width; j++) {
                 String nodeName = String.format("L_%d_%d", i, j);
+                // now, in here, if previous level is empty, no need to add parents...
                 int previousLevelSize = previousLevel.size();
                 Set<String> myParents = new HashSet<>();
-                while ( i != 0 && myParents.isEmpty() ){
-                    int numParents = previousLevelSize > 0 ? r.nextInt( previousLevel.size() + 1 ) : 0 ;
-                    // ensure we get at least 1 parent for each i'th level i != 0
+                if ( previousLevelSize != 0  ){
+                    //get at least 1 parent from previous level
+                    int parentInx = r.nextInt( previousLevelSize );
+                    String parentName = String.format("L_%d_%d", i-1, parentInx);
+                    myParents.add(parentName);
+                    // now, get some random parents from all above levels
+                    int numParents = r.nextInt( maxWidth );
                     for ( int k = 0; k < numParents; k++ ){
-                        int parentInx = r.nextInt( previousLevelSize );
-                        String parentName = String.format("L_%d_%d", i-1, parentInx);
+                        parentInx = r.nextInt( allAboveLevel.size() );
+                        parentName = allAboveLevel.get( parentInx) ;
                         myParents.add(parentName);
                     }
                 }
+
                 Map<String,Object> node = new HashMap<>();
                 node.put( MapDependencyWorkFlow.MapFNode.BODY, nodeName);
                 node.put( MapDependencyWorkFlow.MapFNode.DEPENDS,  new ArrayList<>(myParents) );
@@ -54,6 +61,7 @@ public class DotTest {
                 curLevel.add( nodeName);
             }
             previousLevel = curLevel;
+            allAboveLevel.addAll(curLevel);
         }
         final String data = ZTypes.yamlString( config);
         final String path = "samples/gen/" + flowName  + ".yaml";
@@ -80,7 +88,7 @@ public class DotTest {
 
     @Test
     public void dotOnLargeYamlTest() throws Exception {
-        String genFile = genWorkFlow( 10, 10 );
+        String genFile = genWorkFlow( 4, 4 );
         buildDot(genFile, genFile + ".dot" );
     }
 }
