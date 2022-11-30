@@ -42,6 +42,8 @@ public interface DependencyWorkFlow {
 
     String name();
 
+    Map<String,Object> constants();
+
     default long timeOut() {
         return Long.MAX_VALUE;
     }
@@ -97,8 +99,11 @@ public interface DependencyWorkFlow {
             Set<String> submitted = new HashSet<>();
 
             Set<String> visited = Collections.synchronizedSet(new HashSet<>());
-            Map<String, Object> contextMemory = new ConcurrentHashMap<>(input);
+            // create from constants
+            Map<String, Object> contextMemory = new ConcurrentHashMap<>(workFlow.constants());
             contextMemory.put(STATUS, true);
+            // constants may be overwritten by input
+            contextMemory.putAll(input);
             final ExecutorService executorService = Executors.newFixedThreadPool(executorPoolSize(workFlow));
             boolean runNodeNotSubmitted = true;
             Logger.info("^ < %s > -> [%s]", workFlow.name(), runNodeName);

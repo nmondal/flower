@@ -63,7 +63,6 @@ public interface IONode extends MapDependencyWorkFlow.MapFNode {
                         .version(HttpClient.Version.HTTP_2)
                         .followRedirects(HttpClient.Redirect.NORMAL)
                         .connectTimeout(Duration.ofSeconds(20))
-                        .authenticator(Authenticator.getDefault())
                         .build();
 
                 HttpRequest request = HttpRequest.newBuilder()
@@ -78,8 +77,8 @@ public interface IONode extends MapDependencyWorkFlow.MapFNode {
                 } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                System.out.println(response.statusCode());
-                System.out.println(response.body());
+                //System.out.println(response.statusCode());
+                //System.out.println(response.body());
                 return response;
             };
         }

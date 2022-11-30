@@ -13,6 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -90,7 +92,18 @@ public interface DynamicExecution {
                 Object r = zmb(zs, params);
                 return (T)r.toString()  ;
             }
+            boolean isCollection = false;
+            if ( toBeTransformed instanceof  List ) {
+                isCollection = true;
+                if (((List<?>) toBeTransformed).isEmpty()){ return toBeTransformed; }
+            }
+            if ( toBeTransformed instanceof  Map ) {
+                isCollection = true;
+                if (((Map<?,?>) toBeTransformed).isEmpty()){ return toBeTransformed; }
+            }
+            // else here ..
             if (toBeTransformed instanceof List || toBeTransformed instanceof Map ){
+                // else do things
                 final String execString = String.format( fmtString, ZTypes.jsonString(toBeTransformed));
                 ZScript zs = new ZScript(execString);
                 Object r = zmb(zs, params);

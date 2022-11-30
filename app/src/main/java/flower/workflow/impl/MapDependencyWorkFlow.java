@@ -120,8 +120,9 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         return (String) config().getOrDefault(NAME, "");
     }
 
-    default Map<String,?> constants() {
-        return (Map<String,?>) config().getOrDefault(CONSTANTS, Collections.emptyMap());
+    @Override
+    default Map<String,Object> constants() {
+        return (Map<String,Object>) config().getOrDefault(CONSTANTS, Collections.emptyMap());
     }
 
     default String engine() {
