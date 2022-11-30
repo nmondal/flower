@@ -1,0 +1,45 @@
+# Get all user ids who chatted a lot on comments
+---
+name: 'gather_chatty_users'
+engine: zmb
+
+params:
+  LARGE_WORDS : int
+
+constants:
+  base : "jsonplaceholder.typicode.com"
+
+nodes:
+
+  get_all_comments:
+    https:
+      url: "${::base}/comments"
+      verb: get
+  
+  gather_post_ids:
+    body: _/large_enough.zm
+    depends: 
+      - get_all_comments
+
+  process_post_id:
+    foreach: get_email
+    depends:
+      - gather_post_ids
+
+  get_post:
+    https: 
+      url: "${::base}/posts/${@process_post_id}"
+      verb: get
+
+  get_user:
+    https: 
+      url: "${::base}/users/${get_post}.userId"
+      verb: get
+    
+    depends:
+      - get_post
+
+  get_email:
+    body: ${get_user}.email
+    depends:
+      - get_user

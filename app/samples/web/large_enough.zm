@@ -1,0 +1,6 @@
+// comes from param
+// LARGE_WORDS = 30
+concur( comments , set() ) where {
+  words = tokens( $.o.body, "\\w+" )
+  size(words) >= LARGE_WORDS
+} as { str($.o.postId) }

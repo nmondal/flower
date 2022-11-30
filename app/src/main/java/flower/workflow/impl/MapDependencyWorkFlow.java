@@ -19,6 +19,8 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
     String PARAMS = "params";
 
+    String CONSTANTS = "constants" ;
+
     String NODES = "nodes";
 
     String TIME_OUT = "timeout";
@@ -118,6 +120,10 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         return (String) config().getOrDefault(NAME, "");
     }
 
+    default Map<String,?> constants() {
+        return (Map<String,?>) config().getOrDefault(CONSTANTS, Collections.emptyMap());
+    }
+
     default String engine() {
         return (String) config().getOrDefault(ENGINE, "");
     }
@@ -136,6 +142,18 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
     }
 
+    /**
+     * This is the factory
+     * @param nodeConfig configuration map
+     * @return an appropriate node type
+     */
+    static MapFNode createFrom( Map<String, Object> nodeConfig){
+        IONode.HTTPLike httpLike = () -> nodeConfig;
+        if ( !httpLike.protocol().isEmpty() ) return httpLike;
+        // if nothing happens
+        return () -> nodeConfig;
+    }
+
     @Override
     default Map<String, FNode> nodes() {
         Map nodeData = (Map)config().getOrDefault( NODES, Collections.emptyMap());
@@ -148,8 +166,8 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
             nodeConfig.put(NAME, k);
             nodeConfig.put(OWNER, this);
             nodeConfig.put(ENGINE, engineName);
-
-            MapFNode mapFNode = () -> nodeConfig;
+            // create appropriate node...
+            MapFNode mapFNode = createFrom(nodeConfig);
             nodeData.put(k, mapFNode);
         }
         return (Map<String, FNode>)nodeData;
