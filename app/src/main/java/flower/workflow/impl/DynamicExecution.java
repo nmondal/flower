@@ -3,6 +3,7 @@ package flower.workflow.impl;
 import static zoomba.lang.core.interpreter.ZContext.*;
 import static zoomba.lang.core.operations.Function.MonadicContainer;
 
+import zoomba.lang.core.interpreter.ZInterpret;
 import zoomba.lang.core.interpreter.ZScript;
 import zoomba.lang.core.types.ZTypes;
 
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -55,6 +57,10 @@ public interface DynamicExecution {
 
     String engine();
 
+    default <T> T transform(T toBeTransformed, Map<String,Object> params){
+        return toBeTransformed;
+    }
+
     DynamicExecution DUMMY = new DynamicExecution() {
         //TODO this is for dry running and logging workflow
         @Override
@@ -74,6 +80,25 @@ public interface DynamicExecution {
     };
 
     DynamicExecution ZMB = new DynamicExecution() {
+
+        @Override
+        public <T> T transform(T toBeTransformed, Map<String,Object> params){
+            final  String fmtString = "#'%s'" ;
+            if (toBeTransformed instanceof String ){
+                final String execString = String.format( fmtString, toBeTransformed);
+                ZScript zs = new ZScript(execString);
+                Object r = zmb(zs, params);
+                return (T)r.toString()  ;
+            }
+            if (toBeTransformed instanceof List || toBeTransformed instanceof Map ){
+                final String execString = String.format( fmtString, ZTypes.jsonString(toBeTransformed));
+                ZScript zs = new ZScript(execString);
+                Object r = zmb(zs, params);
+                return (T)r;
+            }
+            // can not do anything here...
+            return toBeTransformed;
+        }
 
         private Object zmb( ZScript script, Map<String, Object> input){
             FunctionContext ctx =

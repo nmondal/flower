@@ -13,5 +13,5 @@ nodes:
 
   get_all_comments:
     https:
-      url: "${::base}/comments"
+      url: "#{base}/comments"
       verb: get

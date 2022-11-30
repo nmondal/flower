@@ -51,17 +51,14 @@ public interface IONode extends MapDependencyWorkFlow.MapFNode {
             return (Map)config().getOrDefault(HEADER, Collections.emptyMap());
         }
 
-        default <T> T transform(Map<String,Object> params, T toBeTransformed){
-            return toBeTransformed;
-        }
 
         @Override
         default Function<Map<String, Object>, Object> body() {
             final String base = ioConfiguration().getOrDefault(URL, "").toString();
             return params -> {
-                final String url = protocol() + "://" + transform( params, base);
-                final String data = transform(params,data());
-                final Map<String,String> headers = transform(params,headers());
+                final String url = protocol() + "://" + DynamicExecution.ZMB.transform( base, params);
+                final String data = DynamicExecution.ZMB.transform(data(), params);
+                final Map<String,String> headers = DynamicExecution.ZMB.transform(headers(), params);
                 HttpClient client = HttpClient.newBuilder()
                         .version(HttpClient.Version.HTTP_2)
                         .followRedirects(HttpClient.Redirect.NORMAL)
