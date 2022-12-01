@@ -42,7 +42,7 @@ public class IOWorkflowTest extends MapWorkFlowTest{
     public void basicWebCallTest() {
         final Map<String,Object> params = new HashMap<>();
         params.put("LARGE_WORDS", 30);
-        final String rNode = "get_all_comments";
+        final String rNode = "select_large_post_ids";
         Map<String,Object> result = testFile( "samples/web/web.yaml", rNode, params );
         assertEquals(true , result.get(STATUS));
     }
