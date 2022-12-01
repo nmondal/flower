@@ -19,7 +19,7 @@ nodes:
     fork :
       node: dummy_node
       var : some_id
-      collector : set
+      unique : true
     depends:
       - gen_fork
 

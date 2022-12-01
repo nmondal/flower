@@ -1,5 +1,7 @@
 package flower.workflow.impl;
 
+import zoomba.lang.core.types.ZTypes;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -13,12 +15,7 @@ public interface ForkNode extends MapDependencyWorkFlow.MapFNode {
 
     String RUN_VAR = "var" ;
 
-    String COLLECTOR = "collector" ;
-
-    enum CollectorType{
-        LIST,
-        SET
-    }
+    String COLLECT_UNIQUE = "unique" ;
 
     default Map<String,Object> forkConfig() {
         return (Map)config().getOrDefault(FORK, Collections.emptyMap());
@@ -32,9 +29,9 @@ public interface ForkNode extends MapDependencyWorkFlow.MapFNode {
         return forkConfig().getOrDefault(RUN_VAR, "").toString();
     }
 
-    default CollectorType collectorType(){
-        String value = forkConfig().getOrDefault(COLLECTOR, CollectorType.LIST).toString().toUpperCase(Locale.ROOT);
-        return Enum.valueOf( CollectorType.class, value);
+    default boolean unique(){
+        String value = forkConfig().getOrDefault( COLLECT_UNIQUE , "false").toString().toLowerCase(Locale.ROOT);
+        return ZTypes.bool(value, false);
     }
 
     default String dataSource(){
@@ -60,16 +57,11 @@ public interface ForkNode extends MapDependencyWorkFlow.MapFNode {
                 Map<String,Object> resultMem = MapDependencyWorkFlow.MANAGER.run( owner(), runNodeName(), cowMem);
                 return resultMem.get( runNodeName());
             });
-
-            switch ( collectorType() ){
-                case SET:
-                    col = forkStream.collect(Collectors.toSet());
-                    break;
-                case LIST:
-                    col = forkStream.collect(Collectors.toList());
-                    break;
+            if ( unique() ){
+                col = forkStream.collect(Collectors.toSet());
+            } else {
+                col = forkStream.collect(Collectors.toList());
             }
-            // now the actual work...
             return col;
         };
     }
