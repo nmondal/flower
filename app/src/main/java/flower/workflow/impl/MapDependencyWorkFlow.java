@@ -149,8 +149,13 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
      * @return an appropriate node type
      */
     static MapFNode createFrom( Map<String, Object> nodeConfig){
+        // We can obviously find a better way TODO
+        // try for HttpLike
         IONode.HTTPLike httpLike = () -> nodeConfig;
         if ( !httpLike.protocol().isEmpty() ) return httpLike;
+        //  try for fork
+        ForkNode forkNode = () -> nodeConfig;
+        if ( !forkNode.forkConfig().isEmpty() ) return forkNode;
         // if nothing happens
         return () -> nodeConfig;
     }

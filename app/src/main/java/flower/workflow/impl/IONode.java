@@ -3,7 +3,6 @@ package flower.workflow.impl;
 import zoomba.lang.core.types.ZTypes;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

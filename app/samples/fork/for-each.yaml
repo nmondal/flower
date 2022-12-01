@@ -1,0 +1,29 @@
+# A basic fork - showing for-all forking
+---
+name: 'test-fork-foreach'
+engine: zmb
+
+params:
+  max_fork : int
+
+constants:
+  base : "abc"
+
+nodes:
+
+  gen_fork:
+    body: >
+      list( [0: max_fork] ) as { random(5) }
+
+  distribute:
+    fork :
+      node: dummy_node
+      var : some_id
+      collector : set
+    depends:
+      - gen_fork
+
+  dummy_node:
+    body: >
+      some_id ** 2 
+      
