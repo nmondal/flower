@@ -15,3 +15,8 @@ nodes:
     https:
       url: "#{base}/comments"
       verb: get
+
+  select_large_post_ids:
+    body: _/large_enough.zm
+    depends: 
+      - get_all_comments

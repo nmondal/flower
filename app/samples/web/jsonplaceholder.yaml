@@ -43,3 +43,17 @@ nodes:
     body: ${get_user}.email
     depends:
       - get_user
+
+
+  distribute:
+    fork :
+      node: dummy_node
+      var : post_id
+      type : all
+      collector : set
+    depends:
+      - select_large_post_ids
+
+  dummy_node:
+    body:  post_id
+

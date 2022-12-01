@@ -10,6 +10,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -51,6 +53,13 @@ public interface IONode extends MapDependencyWorkFlow.MapFNode {
             return (Map)config().getOrDefault(HEADER, Collections.emptyMap());
         }
 
+        static Object transformResponse( HttpResponse<?> response){
+            List<String> types = response.headers().allValues("content-type");
+            if ( types.get(0).toLowerCase(Locale.ROOT).contains("json")){
+                return ZTypes.json(response.body().toString());
+            }
+            return response;
+        }
 
         @Override
         default Function<Map<String, Object>, Object> body() {
@@ -71,17 +80,14 @@ public interface IONode extends MapDependencyWorkFlow.MapFNode {
                         .setHeader("User-Agent", "Java 11 HttpClient Bot") // add request header
                         .build();
 
-                HttpResponse<String> response = null;
+                HttpResponse<?> response = null;
                 try {
                     response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                //System.out.println(response.statusCode());
-                //System.out.println(response.body());
-                return response;
+                return transformResponse(response);
             };
         }
     }
-
 }
