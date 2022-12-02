@@ -15,11 +15,19 @@ nodes:
     body: >
       list( [0: max_fork] ) as { random(5) }
 
-  distribute:
+  distribute_unique:
     fork :
       node: dummy_node
       var : some_id
       unique : true
+    depends:
+      - gen_fork
+
+  distribute:
+    fork :
+      node: dummy_node
+      var : some_id
+      unique : false
     depends:
       - gen_fork
 
