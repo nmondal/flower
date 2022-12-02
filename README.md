@@ -98,6 +98,25 @@ Cost reduction immediately follows.
 
 ## Other Interesting Ideas
 
+1. Rule Engines ( [https://en.wikipedia.org/wiki/Business_rules_engine](https://en.wikipedia.org/wiki/Business_rules_engine) )
+2. Workflow Engines (  [https://en.wikipedia.org/wiki/Workflow_engine](https://en.wikipedia.org/wiki/Workflow_engine) ) 
+3. Low Code (  [https://en.wikipedia.org/wiki/Low-code_development_platform](https://en.wikipedia.org/wiki/Low-code_development_platform) )
+4. DSL ( [https://en.wikipedia.org/wiki/Domain-specific_language](https://en.wikipedia.org/wiki/Domain-specific_language)  )
+
+Here is my own presentation on DSL :  
+[https://www.slideshare.net/nogamondal/formal-methods-in-qa-automation-using-dsl](https://www.slideshare.net/nogamondal/formal-methods-in-qa-automation-using-dsl)
+
+
+Unfortunately, the tech clan is dead against using any of them which does not allow them to write code, 
+and clutter the whole business logic out of it.
+Hence, while some of these sounds like great ideas, they are very less samples of it in production.
+
+
+## License 
+
+This work is under Apache 2.0.
+Here is from where one get a copy:
+[https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 
 
