@@ -225,15 +225,163 @@ The default is JavaScript - and it use ZoomBA to handle many internal operations
 
 ## Manual 
 
+
 ### Node 
 
 Comes in 3 varieties.
 
+#### Basic 
+
+```yaml
+# this is a basic node 
+i_am_a_node: # that is my name 
+  when : true # guard block 
+  body : 42 # this is how you specify the body function  
+  depends: # my dependencies 
+    - another_node 
+    - more_node 
+```
+
+##### when 
+
+Guard block.
+A node will only execute when the guard condition is true.
+
+##### body 
+
+Body of the computation.
+The result of this expression/script will be stored as the result for the node
+in the compute memory.
+
+##### depends 
+
+Set of dependencies for the node, w/o whom the node execution would be meaningless.
+This is how the dependency graph gets created.
+
+#### Web
+
+This is used to make web calls, ( `HTTP` ).
+
+```yaml
+
+get_all_comments:
+  https: # protocol 
+    url: "#{base}/comments" 
+    verb: get
+
+```
+
+For these nodes `http` and `https` protocols are supported.
+`url` defines the url for the web call while `verb` defines the `HTTP` verb to use.
+
+#### Fork 
+
+This node used to distribute a sub-graph ( a node ) for parallel execution.
+
+```yaml
+  distribute:
+    fork :
+      node: dummy_node
+      var : some_id
+      unique : false
+    depends:
+      - gen_fork
+
+  dummy_node:
+    body: >
+      some_id ** 2 
+```
+As one can see the term `fork` distinguishes a fork node.
+
+##### depends 
+
+Only one dependency, the node it depends upon must produce a collection of sorts to distribute the work.
+In this regard dependency is the `data source` for the fork node, and the `mapper` in the `map-reduce` paradigm.
+
+##### node
+
+That is the target reachable node, the `exec` node for the fork. Engine will isolate the subgraph to reach into the `node`
+and then will run the sub-workflow in a separate isolated environment for each item in the data source.
+
+##### var
+
+The context variable name - which will be used to store the item coming from data source.
+
+##### unique
+
+If set to `true` collects the result of this fork operation in a `Set`. Default is `false` so it stores it in a `List`.
+
+
 
 ### Scripting 
 
+Given JSR-223 is included, all JVM scripting languages are default supported, default provided are `javascript` and ZoomBA `zmb`.
+One can use various script engine in various nodes although that would be a terrible experience.
+The engine support is described as follows:
 
 
+```yaml
+engine: zmb
+```
+
+Default support are `zmb` for `ZoomBA`, `js`, `javascript` for JavaScript. 
+
+It is recommended to use ZoomBA, because it was developed for business development ( see wiki in references ).
+
+#### Redirection
+
+One can use inline script, or can reference a script file.
+For example this is how one can reference the file `large_enough.zm ` stored in the same folder as that of the yaml file.
+
+```yaml
+ body: "@_/large_enough.zm"
+```
+Notice the trick `@_/` before the file name. This gets replaced by the `folder` of where the yaml file is situated. 
+This is very useful to copy the whole workflow source code as is.
+
+
+### Graph Structure 
+
+A typical Yaml Structure for a Graph is shown here:
+
+```yaml
+name: 'gather_chatty_users'
+engine: zmb
+
+params:
+  LARGE_WORDS : int
+
+constants:
+  base : "jsonplaceholder.typicode.com"
+
+nodes:
+
+  get_all_comments:
+    https:
+      url: "#{base}/comments"
+      verb: get
+
+  select_large_post_ids:
+    body: "@_/large_enough.zm"
+    depends: 
+      - get_all_comments
+
+```
+As we can see `name` is the name of the workflow.
+`engine` is the default script engine to be used, if no one else specifies anything else.
+
+#### constants 
+
+`constants` is a special map which stores all things constant that can be used to dereference later.
+They are available to every node and script as values.
+
+#### params
+
+This defines the parameters for the flow.
+Engine checks if each parameter is filled in before the engine runs a flow.
+Same is applicable for each node.
+
+See the tests to understand more. 
 
 
 ## Other Interesting Ideas
@@ -259,9 +407,3 @@ Hence, while some of these sounds like great ideas, they are very less samples o
 This work is under Apache 2.0.
 Here is from where one get a copy:
 [https://www.apache.org/licenses/LICENSE-2.0.txt](https://www.apache.org/licenses/LICENSE-2.0.txt)
-
-
-
-
-
-
