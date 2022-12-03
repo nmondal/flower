@@ -15,7 +15,7 @@ public interface ForkNode extends MapDependencyWorkFlow.MapFNode {
 
     String RUN_VAR = "var" ;
 
-    String COLLECT_UNIQUE = "unique" ;
+    String COLLECT_UNIQUE = "distinct" ;
 
     default Map<String,Object> forkConfig() {
         return (Map)config().getOrDefault(FORK, Collections.emptyMap());

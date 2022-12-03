@@ -19,7 +19,7 @@ nodes:
     fork :
       node: dummy_node
       var : some_id
-      unique : true
+      distinct : true
     depends:
       - gen_fork
 
@@ -27,7 +27,7 @@ nodes:
     fork :
       node: dummy_node
       var : some_id
-      unique : false
+      distinct : false
     depends:
       - gen_fork
 
