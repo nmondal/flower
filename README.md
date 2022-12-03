@@ -1,5 +1,7 @@
 # FLOWER 
 
+[toc]
+
 ## About 
 
 FLOWER is an Acronym for:
@@ -9,16 +11,14 @@ FLOWER is an Acronym for:
 Flower attempts to bridge the gap between structured approach to back-end development
 via DSL and externalisation of business logic from core execution.
 
+It is a general purpose, polyglot, configuration driven, 
+DSL based business flow engine designed to democratise backend development.
 
 Caution:
 
-This aims to reduce the number of developers required to run a business, not to increase it.
-So, trade carefully. 
+This aims to *reduce the number of developers* required to run a business, not to increase it to create a tech empire.
 
 ![](https://media.tenor.com/VvvknWvV1HEAAAAC/jedi-starwars.gif)
-
-May be it is not the tool you are looking for.
-
 
 
 ## Objective
@@ -31,32 +31,36 @@ From the last decade the cult of "api-development" has become synonymous with th
 1. Exposing data over web ( CRUD )
 2. Aggregating multiple other API calls or data sources ( Aggregation )
 3. Writing next to trivial logic ( apparently called *business logic* ) 
-4. All of these w/o any inherent capability of parallelism, asynchrony and timeouts and retries ( resiliency ) 
+4. All of these w/o any inherent capability of parallelism, asynchrony and timeouts and retries ( performance & resiliency ) 
 
-In the end business and tech needs diverge : where it is like a self fulfilling circle
-culminating into throttling business development. 
+In the end business and tech needs diverged : where it is like a self fulfilling circle.
+This throttles business development, this must be stopped. 
 
 ### Reduce Developer Footprint 
 
 The previous paragraph suggests ( many ) wrong ideas about the nature of the Tech.
-All of these has to stop, or has to be done by folks who are not even developers.
+All of these have to be modelled such that these get done by few, while being used by many others who are not even developers. 
+
 Software development must be democratised beyond developers.
 If something was possible with 100 developers, then those MUST be solved with 10, if not less.
-
 
 Goal of any development must starts with profit, and end with increasing margin.
 This cannot happen with an empire full of developers doing development for development's sake.
 A crack team of 10 is more than capable of handling a top team of 100 developers.
+
+Excel Macros are such an example, so are SQL Engines.
 
 
 And we should stop thinking about "long run". In the long run, the business will be more than dead.
 
 ### Stable Standard by Default  
 
-What we are saying is anti thesis of what the so called "Industry Experts" promote.
-Perhaps they know better, perhaps they mean well. That is not to say that we are willing to sacrifice stability.
+What we are saying is the anti thesis of what the so called "Industry Experts" promote.
+Perhaps they know better, perhaps they mean well. That is not to say that we are willing to sacrifice Quality - which means write once, forget. 
 
-Some code in some form is unavoidable, no matter how differently one represents it.
+There will be parts which would almost never change, and there will be parts which will be frequently changing. First creates the core engine, second one creates the malleable *business logic*.
+
+Code in some form is unavoidable, no matter how differently one represents it.
 Consider the goal of query. In 1960s it was COBOL and then SQL became a stable standard.
 With the advent of *scale* people almost stopped using SQL - instead started using SQL-ish dialect which are DSLs.
 
@@ -65,37 +69,69 @@ Kubernetes/Ansible popularised YAML and hence Yaml form is chosen for visual rep
 
 ## Design Goals
 
-1. Business Logic outside Code 
+1. Business Logic outside Code Repos 
 2. Configurability with Turing Completeness 
-3. Polyglot Environment 
-4. Reduction of Development cost 
-5. Get shit done
+3. Polyglot Environment  
+4. Cost Reduction in Development 
 
 One paragraph suffices for each of them.
 
 ### Separation of Business from Core Engine 
 
-Key issue of loss of dev time is logic is inside code.
-This must be separated with *logic from business people* against *core logic to do anything*.
-The *functional* stuff helped , a bit.
+Key issue of loss of dev time today begins with *custom* logic residing inside code.
+This must be separated. 
+*logic from business people* should be kept separated from *core logic to do anything*.
+To achieve this, *functional* style helps while 
+*Declarative* style does it better.
 
-### Turing Completeness along with Configuration Based 
+### Turing Complete Configuration Language
 
-At most a business need must be Turing Complete. 
-Also, given the separation of logic - one must build a configuration based engine.
+A business need at most must be computable, hence describable in a Turing Complete lamguage. 
+Given the separation of logic - one must build a configuration based engine.
+This prompts creation of a DSL that is configuration based, but Turing Complete as well.
+
+Such a DSL is not new. The T-SQL completion of SQL as well as Gradle is Turing Complete.
+Incidentally both are *declarative* in nature:
+
+```gradle
+apply plugin: 'java'
+
+repositories {
+   jcenter()
+}
+
+dependencies {
+   compile 'org.slf4j:slf4j-api:1.7.12'
+   testCompile 'junit:junit:4.12'
+}
+
+jar {
+   manifest {
+      attributes 'Main-Class': 'com.example.main.Application'
+   }
+}
+```
+
+It is inconceivable why business logic never became declarative.
+
 
 ### Everyone Wins - Polyglot
 
-The snob attitude of one language is *better than another* must stop.
-Given any problem there are sub problems and within them one language must trump others.
-Massive data processing ? Perhaps you need Pandas. We do not know. 
+DSL must have scripting and language injection support.
 
-Hence the system must support a large class of languages in which people can type in random code for business.
-Hence, one does not need to find a specific set of developers - let's call them *business developers* with specified tech.
+Given any problem there are sub problems and within them one language may trump others
+in terms of applicability into the domain.
+
+Hence the system must support a fairly large class of languages in which people can type in *unavoidable* code for business.
+
+Such code *must* be kept few and far between. For all practical purpose, they should indistinguishable from writing declarative expressions.
+
+Henceforth, one does not need to find a specific set of developers : let's call them *business developers* with specified tech.
 
 ### Reduction of Development Cost
 
-Previous paragraph reduces the development bar. *Stellar* is less than the operating word.
+Previous section raises the bar for *Engine Development* and reduces the development bar for *Business Development* . 
+ 
 Imagine SQL. The people building SQL would be very less, 10 or less even.
 Folks who would be using SQL to get something done would be in millions.
 
@@ -103,15 +139,6 @@ One does not need to reach that much margin, but a ratio of 1 core Engineer per 
 Most of the cases they can be contractual employees.
 
 Cost reduction immediately follows.
-
-### Get Shit Done
-
-As discussed, every work item must transform into in less than 3 steps how it is going to either:
-
-1. Reduce Cost 
-2. Increase Profit 
-
-Goal for this, then is to ensure result in any way necessary. 
 
 
 ## Basic Idea 
@@ -161,7 +188,7 @@ This produce the following graph:
 
 ```graphviz
 digraph G {
-label = "1";
+label = "example graph";
 node [style=filled, shape=rectangle]; 
 a;
 b;
@@ -178,6 +205,11 @@ end [shape=circle];
 ```
 
 Which is the precise flow from `start` to the `end`.
+
+In this example `a,b,c` are nodes. 
+The destination node is `c`, and there are two flows that merges into it, `a->c` and `b->c`.
+
+
 Way to call it is given by:
 
 ```java
@@ -195,7 +227,8 @@ assertEquals(30, result.get("c"));
 ### Engine 
 
 Flower engine executes the flow.
-
+This has a parallel design, with timeouts.
+It also has scripting/expression support.
 
 #### Algorithm
 
