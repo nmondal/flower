@@ -4,9 +4,7 @@ import zoomba.lang.core.types.ZNumber;
 import zoomba.lang.core.types.ZTypes;
 
 import java.security.SecureRandom;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
@@ -46,6 +44,31 @@ public interface Retry {
         }
     } ;
 
+    class MaximumRetryExceededException extends RuntimeException {
+        public final List<Throwable> failures;
+        public final Retry retry;
+
+        public MaximumRetryExceededException( Retry retry, List<Throwable> causes){
+            super();
+            failures = Collections.unmodifiableList(causes);
+            this.retry = retry;
+        }
+
+        @Override
+        public String toString() {
+            Map<String,Object> map = new HashMap<>();
+            map.put("failures", ZTypes.jsonString(failures));
+            map.put("retry", retry.toString());
+            map.put("numTries", failures.size() + 1);
+            return ZTypes.jsonString(map);
+        }
+
+        @Override
+        public String getMessage() {
+            return "Retry exceeded : " +  toString();
+        }
+    }
+
     default  <T,R> Function<T,R>  withRetry( Function<T,R> function){
         // optimization trick : if no retry, do not wrap the stuff...
         if ( !can() ) return function;
@@ -53,6 +76,7 @@ public interface Retry {
         return t -> {
             int numTries = 0;
             // initialize
+            List<Throwable> failures = new ArrayList<>();
             numTries(numTries);
             while( can() ){
                 try {
@@ -60,6 +84,7 @@ public interface Retry {
                 }catch (Throwable th){
                     numTries++;
                     numTries(numTries);
+                    failures.add(th);
                     try {
                         Thread.sleep(interval());
                     }catch (InterruptedException e){
@@ -67,7 +92,7 @@ public interface Retry {
                     }
                 }
             }
-            throw new RuntimeException("Retry exceeded!!! " + numTries);
+            throw new MaximumRetryExceededException( this, failures);
         };
     }
 
@@ -97,6 +122,15 @@ public interface Retry {
         @Override
         public long interval() {
             return interval;
+        }
+
+        @Override
+        public String toString() {
+            Map<String,Object> map = new HashMap<>();
+            map.put("max", maxRetries);
+            map.put("interval", interval);
+            map.put("type", getClass().getName());
+            return ZTypes.jsonString(map);
         }
     }
 
