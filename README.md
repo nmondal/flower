@@ -242,6 +242,8 @@ end [shape=circle];
 
 ```
 
+[]()
+
 Which is the precise flow from `start` to the `end`.
 
 In this example `a,b,c,d` are nodes. 
@@ -493,25 +495,25 @@ name: 'simple-flow-with-node-retry'
 engine: zmb
 
 constants:
-	base : "some.random.server"
+  base : "some.random.server"
 
 params:
-	fail_unto : int
+  fail_unto : int
 
 nodes:
 
-	possible_fail:
-		when: "@_/pre.zm"
-		body: "@_/fail_unto.zm"
-		retry: # this node can be retried 
-			strategy: counter # simple counter
-			max: 3 # 4th time would be a failure  
-			interval: 10 # delaying for 10 ms 
+  possible_fail:
+    when: "@_/pre.zm"
+    body: "@_/fail_unto.zm"
+    retry: # this node can be retried 
+      strategy: counter # simple counter
+      max: 3 # 4th time would be a failure  
+      interval: 10 # delaying for 10 ms 
 
-	outcome:
-		body: possible_fail
-		depends:
-			- possible_fail
+  outcome:
+    body: possible_fail
+    depends:
+      - possible_fail
 ```
 
 As one can see, there are two parameters along with the strategy type:
@@ -532,9 +534,9 @@ Essentially keeps a counter of failures. Successive calls  are separated by *con
 
 ```yaml
 retry: # counter retry 
-	strategy: counter
-	max : 3 
-	interval : 10 
+  strategy: counter
+  max : 3 
+  interval : 10 
 ```
 
 ##### Random 
@@ -551,9 +553,9 @@ The actual gap  between successive calls will be distributed uniformly between t
 
 ```yaml
 retry: # random retry 
-	strategy: random
-	max : 3 
-	interval : 10 
+  strategy: random
+  max : 3 
+  interval : 10 
 ```
 
 
@@ -569,9 +571,9 @@ First try ( which is not a retry ) is given $n=0$ and thus, first retry gets the
 
 ```yaml
 retry: # Exponential Back-Off retry 
-	strategy: exp
-	max : 3 
-	interval : 10 
+  strategy: exp
+  max : 3 
+  interval : 10 
 ```
 
 
