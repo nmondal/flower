@@ -1,0 +1,14 @@
+/*
+This guy's job is to fail till it gets invoked
+*/
+fail_unto = 2 // comes form context
+x = read(_/"state.txt").trim() ?? "0"
+cur_time = int(x,0)
+printf("State previously was : %d %n", cur_time)
+cur_time += 1
+write( _/"state.txt", str( cur_time) )
+printf("State now is : %d %n", cur_time)
+panic( cur_time <= fail_unto , "Failure because cur_time is less than equal to fail_unto" )
+println("Out of panic, will return value now")
+// return
+cur_time

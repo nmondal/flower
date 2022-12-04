@@ -126,6 +126,10 @@ public interface DependencyWorkFlow {
                                 (me) -> {
                                     Logger.info("+ [%s]", nodeName);
                                     try {
+                                        // run the when condition...
+                                        boolean shouldRun = curNode.when().test(contextMemory);
+                                        // TODO do we need better?
+                                        if (!shouldRun) throw new RuntimeException(":when: returned false");
                                         Object res = curNode.body().apply(contextMemory);
                                         contextMemory.put(nodeName, res);
                                         Logger.info("- [%s]", nodeName);

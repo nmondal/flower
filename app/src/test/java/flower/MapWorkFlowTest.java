@@ -92,4 +92,19 @@ public class MapWorkFlowTest {
         Assert.assertTrue(result.get("b") instanceof RuntimeException);
         assertFalse(result.containsKey("+")); // should not run any further node
     }
+    @Test
+    public void predicateConditionTest(){
+        final Map<String,Object> params = new HashMap<>();
+        params.put("make_fail", true);
+        String rNode = "outcome";
+        Map<String,Object> result = testFile( "samples/guard.yaml", rNode, params );
+        assertEquals(false , result.get(STATUS));
+        assertTrue(result.get("possible_fail") instanceof RuntimeException);
+        assertFalse(result.containsKey(rNode)); // should not run any further node
+        // now make it pass through
+        params.put("make_fail", false);
+        result = testFile( "samples/guard.yaml", rNode, params );
+        assertEquals(true , result.get(STATUS));
+        assertEquals(42, result.get(rNode));
+    }
 }

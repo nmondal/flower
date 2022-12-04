@@ -1,0 +1,20 @@
+---
+name: 'node-when-failure'
+engine: zmb
+
+constants:
+  base : "some.random.server"
+
+params:
+  make_fail : bool
+
+nodes:
+
+  possible_fail:
+    when: "!make_fail"
+    body: "42"
+
+  outcome:
+    body: possible_fail
+    depends:
+      - possible_fail

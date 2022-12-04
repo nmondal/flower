@@ -1,0 +1,26 @@
+# A basic fork - showing for-all forking
+# for NK's "functional rule"
+# you run 'distribute' node
+---
+name: 'simple-flow-with-node-retry'
+engine: zmb
+
+constants:
+  base : "some.random.server"
+
+params:
+  fail_unto : int
+
+nodes:
+
+  possible_fail:
+    body: "@_/fail_unto.zm"
+    retry:
+      type: counter
+      count: 3
+      interval: 10
+
+  outcome:
+    body: possible_fail
+    depends:
+      - possible_fail
