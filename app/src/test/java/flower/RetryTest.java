@@ -105,6 +105,9 @@ public class RetryTest extends MapWorkFlowTest{
         // gaps should be close to 25~100 , yes?
         boolean allMatch = gaps.stream().allMatch( x -> x >= 25  && x <= 105 );
         assertTrue(allMatch);
+        // is the avg round about what it should be?
+        long avg = gaps.stream().mapToLong(i -> i).sum() / 10;
+        assertTrue( Math.abs(avg - 50) < 25 );
     }
 
     @Test
