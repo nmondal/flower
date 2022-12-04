@@ -7,10 +7,10 @@
 
 FLOWER is an Acronym for:
 
-> *FlowE*ngine For *R*eal Time
+> *FlowE*ngine For *R*eal Time processing needs
 
-Flower attempts to bridge the gap between structured approach to back-end development
-via DSL and externalisation of business logic from core execution.
+Flower attempts to bridge the gap between code-it-all approach to back-end development
+versus externalisation of business logic from core execution via DSL. 
 
 It is a general purpose, polyglot, configuration driven, 
 DSL based business flow engine designed to democratise backend development.
@@ -317,8 +317,13 @@ It was quite possible to end in `a,b,d` also.
 
 Flower engine executes the flow based on the available processors.
 It has:
-1. Scalable parallel design, with timeouts.
-2. Scripting/expression support.
+1. Scalable parallel design, with built in node level  
+	1. guards
+	2. timeouts
+	3. retries 
+	4. error handling 
+2. Relies on compositions of pure functions  
+3. Scripting/expression support via JSR-223 
 
 #### Algorithm
 
@@ -477,6 +482,98 @@ The name of the variable `x` is defined in var. As we can see the node `dummy_no
 If set to `true` collects the result of this fork operation in a `Set`. Default is `false` so it stores it in a `List`.
 
 See : https://www.w3schools.com/sql/sql_distinct.asp 
+
+### Retries 
+
+A retry is an attribute of any `node`. This is how one can use retry:
+
+```yaml
+name: 'simple-flow-with-node-retry'
+
+engine: zmb
+
+constants:
+	base : "some.random.server"
+
+params:
+	fail_unto : int
+
+nodes:
+
+	possible_fail:
+		when: "@_/pre.zm"
+		body: "@_/fail_unto.zm"
+		retry: # this node can be retried 
+			strategy: counter # simple counter
+			max: 3 # 4th time would be a failure  
+			interval: 10 # delaying for 10 ms 
+
+	outcome:
+		body: possible_fail
+		depends:
+			- possible_fail
+```
+
+As one can see, there are two parameters along with the strategy type:
+1.  `max` : defines the maximum no of retries before failure 
+2.  `interval` :  interval between two successive tries 
+
+Caution :  All retries run within the stipulated timeout, hence, if timeout exceeds retries will not work. Retries will only work iff the timeout is not over.
+
+#### Strategies 
+
+There are 4 strategies available:
+
+##### NOP
+This is not even a strategy, it suggests no retry.
+
+##### Counter 
+Essentially keeps a counter of failures. Successive calls  are separated by *constant* interval spacing.
+
+```yaml
+retry: # counter retry 
+	strategy: counter
+	max : 3 
+	interval : 10 
+```
+
+##### Random 
+
+Like a counter, has a counter of failures. Successive calls  are separated by *random* interval spacing - not exceeding : 
+$$
+max = 1.5 \times interval
+$$ And not lower than:
+
+$$
+min = 0.5 \times interval
+$$
+The actual gap  between successive calls will be distributed uniformly between these two numbers.
+
+```yaml
+retry: # random retry 
+	strategy: random
+	max : 3 
+	interval : 10 
+```
+
+
+##### Exponential Back-Off
+Like a counter, has a counter of failures. Successive calls  are separated by *exponentially larger* interval spacing  : 
+
+$$
+S(n) = S_0 \times e^n 
+$$
+
+Where $S_0$ is the initial `interval` that is passed, $n$ is the number of retries.
+First try ( which is not a retry ) is given $n=0$ and thus, first retry gets the $S_0 = interval$. 
+
+```yaml
+retry: # Exponential Back-Off retry 
+	strategy: exp
+	max : 3 
+	interval : 10 
+```
+
 
 ### Scripting 
 
