@@ -35,6 +35,8 @@ public interface DependencyWorkFlow {
             return Long.MAX_VALUE;
         }
 
+        default Retry retry() { return Retry.NOP ; }
+
         DependencyWorkFlow owner();
 
         Set<String> dependencies();
@@ -130,7 +132,9 @@ public interface DependencyWorkFlow {
                                         boolean shouldRun = curNode.when().test(contextMemory);
                                         // TODO do we need better?
                                         if (!shouldRun) throw new RuntimeException(":when: returned false");
-                                        Object res = curNode.body().apply(contextMemory);
+                                        Retry retry = curNode.retry();
+                                        Function<Map<String,Object>,Object> bodyWithRetry = retry.withRetry( curNode.body() );
+                                        Object res = bodyWithRetry.apply(contextMemory);
                                         contextMemory.put(nodeName, res);
                                         Logger.info("- [%s]", nodeName);
                                     } catch (Throwable t) {

@@ -1,0 +1,3 @@
+// initialize with 0
+write( _/"state.txt", str( 0) )
+true // return true to ensure things run

@@ -2,6 +2,7 @@ package flower.workflow.impl;
 
 import flower.Logger;
 import flower.workflow.DependencyWorkFlow;
+import flower.workflow.Retry;
 import zoomba.lang.core.types.ZNumber;
 import zoomba.lang.core.types.ZTypes;
 
@@ -51,6 +52,9 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
 
         String DEPENDS = "depends" ;
 
+        String RETRY = "retry" ;
+
+
         Map<String,Object> config();
 
         @Override
@@ -65,6 +69,12 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         @Override
         default long timeOut() {
             return ZNumber.integer(config().getOrDefault(TIME_OUT, Long.MAX_VALUE).toString()).longValue();
+        }
+
+        @Override
+        default Retry retry() {
+            Map<String,Object> retryConfig = (Map) config().getOrDefault(RETRY, Collections.emptyMap());
+            return Retry.fromConfig(retryConfig);
         }
 
         @Override

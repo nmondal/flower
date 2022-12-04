@@ -1,6 +1,5 @@
-# A basic fork - showing for-all forking
-# for NK's "functional rule"
-# you run 'distribute' node
+# Test retry mechanism
+# you run 'outcome' node
 ---
 name: 'simple-flow-with-node-retry'
 engine: zmb
@@ -14,10 +13,11 @@ params:
 nodes:
 
   possible_fail:
+    when: "@_/pre.zm"
     body: "@_/fail_unto.zm"
     retry:
-      type: counter
-      count: 3
+      strategy: counter
+      max: 3
       interval: 10
 
   outcome:

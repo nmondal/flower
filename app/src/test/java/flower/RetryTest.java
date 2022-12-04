@@ -1,10 +1,13 @@
 package flower;
 
 import flower.workflow.Retry;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.function.Function;
+
+import static flower.workflow.DependencyWorkFlow.Manager.STATUS;
 import static org.junit.Assert.*;
 
 public class RetryTest extends MapWorkFlowTest{
@@ -124,5 +127,17 @@ public class RetryTest extends MapWorkFlowTest{
         final long third = gaps.get(2);
         ratio = (int)(third / second) ;
         assertTrue(  ratio >= 2  );
+    }
+
+    @Test
+    public void retryInWorkFlowTest(){
+        final Map<String,Object> params = new HashMap<>();
+        params.put("fail_unto", 100); // too many times failure
+        final String rNode = "outcome";
+        Map<String,Object> result = testFile( "samples/retry/retry.yaml", rNode, params );
+        Assert.assertEquals(false , result.get(STATUS));
+        params.put("fail_unto", 2); // less, so should pass
+        result = testFile( "samples/retry/retry.yaml", rNode, params );
+        Assert.assertEquals(true , result.get(STATUS));
     }
 }

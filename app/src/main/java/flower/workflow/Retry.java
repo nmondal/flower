@@ -1,6 +1,11 @@
 package flower.workflow;
 
+import zoomba.lang.core.types.ZNumber;
+import zoomba.lang.core.types.ZTypes;
+
 import java.security.SecureRandom;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
@@ -142,6 +147,22 @@ public interface Retry {
             @Override
             public long interval() {
                 return curInterval;
+            }
+        };
+    }
+
+    static Retry fromConfig(Map<String,Object> config){
+        if ( config.isEmpty() ) return NOP;
+        final String strategy = config.getOrDefault("strategy", "counter").toString();
+        final int maxRetries = ZNumber.integer(config.getOrDefault("max", 0),0).intValue();
+        final long interval = ZNumber.integer(config.getOrDefault("interval", Long.MAX_VALUE),0).longValue();
+        return switch (strategy.toLowerCase(Locale.ROOT)) {
+            case "exp" -> exponentialBackOff(maxRetries, interval);
+            case "random" -> randomize(maxRetries, interval);
+            case "counter" -> counter(maxRetries,interval);
+            default -> { // log it out may be?
+                System.err.printf("Could not make a Retry out of : %s --> NOP %n", ZTypes.jsonString(config));
+                yield  NOP;
             }
         };
     }

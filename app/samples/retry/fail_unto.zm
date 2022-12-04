@@ -1,7 +1,8 @@
 /*
 This guy's job is to fail till it gets invoked
 */
-fail_unto = 2 // comes form context
+//fail_unto = 2 // comes form context
+println( fail_unto ?? 'fail_unto is not defined!' )
 x = read(_/"state.txt").trim() ?? "0"
 cur_time = int(x,0)
 printf("State previously was : %d %n", cur_time)
