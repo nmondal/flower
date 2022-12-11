@@ -1,0 +1,38 @@
+data = json(_/"input_data_1.json", true )
+/*
+res = fold( data.networks, list() ) as {
+   fold ( $.o.productTypes , $.p ) as {
+       fold ( $.o.products , $.p ) as {
+          r = {
+            "id" : $.o.id ,
+            "networkId" : $.$.$.o.id ,
+            "networkDescription" : $.$.$.o.description ,
+            "productIdentity" : $.o.id,
+            "productCatTypeName" : $.$.o.description,
+            "minAmount" : $.o.minAmount
+          }
+          $.p += r // return 
+       }
+   }
+}
+
+println( jstr( res, true ) )
+*/
+
+res = list ( xelem( data, "//products" , true ) ) as {
+   product = $.o 
+   ret = {
+      "id" : product.value.id, 
+      "networkId" : xpath(product, "../../@id") ,
+      "networkDescription" : product.parent.parent.value.description ,
+      "productIdentity" : product.parent.value.id,
+      "productCatTypeName" : product.parent.value.description,
+      "minAmount" : product.minAmount
+   }
+}
+
+
+println( res )
+
+
+

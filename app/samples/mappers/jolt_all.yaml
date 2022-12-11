@@ -1,0 +1,32 @@
+jolt_1:
+  Rating : "/rating/primary/value"
+  SecondaryRatings :
+    quality:
+      Id : "'quality'"
+      Value: "/rating/quality/value"
+      Range: 5
+  Range: 5
+
+jolt_4:
+  ratingNames:
+    _each: "rating/node()"
+    "_" : "./name()"
+
+jolt_5:
+  ratings:
+    _each: "ratings/node()"
+    Name: "/name()"
+    Value: "./"
+
+jolt_12:
+  _each: "./entities"
+  _group : "./type"
+  "*" : "*"
+
+
+jolt_13:
+  paperBooks:
+    _each: "/books"
+    _when: "'paperback' @ availability"
+    "*" : "*"
+

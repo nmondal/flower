@@ -1,0 +1,68 @@
+{
+  "products": [
+    {
+      "id": "001",
+      "networkId": 1,
+      "networkDescription": "Carrier ABC",
+      "productIdentity": 1,
+      "productCatTypeName": "Airtime",
+      "minAmount": "67.00"
+    },
+    {
+      "id": "002",
+      "networkId": 1,
+      "networkDescription": "Carrier ABC",
+      "productIdentity": 1,
+      "productCatTypeName": "Airtime",
+      "minAmount": "6.00"
+    },
+    {
+      "id": "001-2",
+      "networkId": 1,
+      "networkDescription": "Carrier ABC",
+      "productIdentity": 2,
+      "productCatTypeName": "Data",
+      "minAmount": "7.00"
+    },
+    {
+      "id": "002-2",
+      "networkId": 1,
+      "networkDescription": "Carrier ABC",
+      "productIdentity": 2,
+      "productCatTypeName": "Data",
+      "minAmount": "5.90"
+    },
+    {
+      "id": "001-3",
+      "networkId": 2,
+      "networkDescription": "Carrier 123",
+      "productIdentity": 1,
+      "productCatTypeName": "Airtime",
+      "minAmount": "267.00"
+    },
+    {
+      "id": "002-3",
+      "networkId": 2,
+      "networkDescription": "Carrier 123",
+      "productIdentity": 1,
+      "productCatTypeName": "Airtime",
+      "minAmount": "61.00"
+    },
+    {
+      "id": "001-5",
+      "networkId": 2,
+      "networkDescription": "Carrier 123",
+      "productIdentity": 2,
+      "productCatTypeName": "Data",
+      "minAmount": "17.00"
+    },
+    {
+      "id": "002-5",
+      "networkId": 2,
+      "networkDescription": "Carrier 123",
+      "productIdentity": 2,
+      "productCatTypeName": "Data",
+      "minAmount": "52.90"
+    }
+  ]
+}

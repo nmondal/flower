@@ -1,0 +1,72 @@
+{
+  "networks": [
+    {
+      "id": 1,
+      "description": "Carrier ABC",
+      "productTypes": [
+        {
+          "id": 1,
+          "description": "Airtime",
+          "products": [
+            {
+              "id": "001",
+              "minAmount": "67.00"
+            },
+            {
+              "id": "002",
+              "minAmount": "6.00"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "description": "Data",
+          "products": [
+            {
+              "id": "001-2",
+              "minAmount": "7.00"
+            },
+            {
+              "id": "002-2",
+              "minAmount": "5.90"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Carrier 123",
+      "productTypes": [
+        {
+          "id": 1,
+          "description": "Airtime",
+          "products": [
+            {
+              "id": "001-3",
+              "minAmount": "267.00"
+            },
+            {
+              "id": "002-3",
+              "minAmount": "61.00"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "description": "Data",
+          "products": [
+            {
+              "id": "001-5",
+              "minAmount": "17.00"
+            },
+            {
+              "id": "002-5",
+              "minAmount": "52.90"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
