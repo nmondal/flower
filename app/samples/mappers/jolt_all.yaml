@@ -1,16 +1,22 @@
 jolt_1:
-  Rating : "/rating/primary/value"
+  Rating : "#rating/primary/value"
   SecondaryRatings :
     quality:
       Id : "'quality'"
-      Value: "/rating/quality/value"
+      Value: "#rating/quality/value"
       Range: 5
   Range: 5
 
-jolt_4:
+jolt_4x:
   ratingNames:
-    _each: "rating/node()"
-    "_" : "./name()"
+    _each: "@rating/node()"
+    "_" : "$.name.name"
+
+jolt_4z:
+  ratingNames:
+    _each: "$.rating.keys"
+    "_" : "$"
+
 
 jolt_5:
   ratings:

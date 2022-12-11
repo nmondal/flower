@@ -24,6 +24,8 @@ public interface MapBasedTransform extends Transformation<Object> {
 
     String GROUP_DIRECTIVE = "_group" ;
 
+    String SCALAR_DIRECTIVE = "_" ;
+
     Map.Entry<String,Object> entry();
 
     @Override
@@ -31,9 +33,62 @@ public interface MapBasedTransform extends Transformation<Object> {
         return entry().getKey();
     }
 
-    static boolean isXPath(String s){
-        // TODO bad idea, but works for now
-        return s.startsWith("./") || s.startsWith("/");
+    interface ProcessingType{
+
+        String XPATH_ONLY = "#" ;
+
+        String XPATH_ELEM = "@" ;
+
+        boolean isXPath();
+
+        boolean isXElem();
+
+        default boolean isOther(){
+            return !isXPath() && !isXElem();
+        }
+
+        String pathString();
+
+        static ProcessingType processDirective(String s){
+
+            final boolean isXPath = s.startsWith(XPATH_ONLY);
+            final boolean isXElem = s.startsWith(XPATH_ELEM);
+
+            final String path;
+            if ( isXPath || isXElem ){
+                path = s.substring(1);
+            } else {
+                path = s;
+            }
+            return new ProcessingType() {
+                @Override
+                public boolean isXPath() {
+                    return isXPath;
+                }
+
+                @Override
+                public boolean isXElem() {
+                    return isXElem;
+                }
+
+                @Override
+                public String pathString() {
+                    return path;
+                }
+            };
+        }
+
+        default Object process(Object o, boolean multi){
+            if ( isXPath() ){
+                return ZMethodInterceptor.Default.jxPath(o, pathString(), multi);
+            } else if ( isXElem() ){
+                return ZMethodInterceptor.Default.jxElement(o, pathString(), multi );
+            }
+            else {
+                Function<Object,Object> f = func(pathString());
+                return f.apply(o);
+            }
+        }
     }
 
     static Function<Object,Object>  func( String s){
@@ -59,14 +114,9 @@ public interface MapBasedTransform extends Transformation<Object> {
     @Override
     default Object apply(Object o) {
         // this is the default, so Object must be treated as expression hence...
-        String directive = entry().getValue().toString().trim();
-        if ( isXPath(directive) ){
-            boolean array = ARRAY_DIRECTIVE.equalsIgnoreCase(identifier());
-            return ZMethodInterceptor.Default.jxPath(o, directive, array);
-        } else {
-            Function<Object,Object> f = func(directive);
-            return f.apply(o);
-        }
+        final String directive = entry().getValue().toString().trim();
+        ProcessingType pt = ProcessingType.processDirective(directive);
+        return pt.process(o,false);
     }
 
     static MapTransformation mapTransform( String id, Map<String,Object> map){
@@ -92,7 +142,12 @@ public interface MapBasedTransform extends Transformation<Object> {
         if ( map.containsKey(IDENTITY_DIRECTIVE) ){
             child = IDENTITY;
         } else {
-            child =  mapTransform(id + ".map", map);;
+            if ( map.containsKey(SCALAR_DIRECTIVE ) ){
+                Map.Entry<String,Object> entry = Map.entry(id + ".sc", map.get(SCALAR_DIRECTIVE));
+                child = fromEntry(entry);
+            } else {
+                child = mapTransform(id + ".map", map);
+            }
         }
         final Predicate<Object> when;
         if ( map.containsKey(PRED_DIRECTIVE) ){
@@ -104,15 +159,14 @@ public interface MapBasedTransform extends Transformation<Object> {
         return new ListTransformation<>() {
             @Override
             public Stream<Object> each(Object o) {
-                String directive = map.getOrDefault( ARRAY_DIRECTIVE, "./").toString().trim();
-                Collection<Object> col ;
-                if ( isXPath(directive) ){
-                   col =  (Collection<Object>) ZMethodInterceptor.Default.jxPath(o, directive, true);
-                } else {
-                    Function<Object,Object> f = func(directive);
-                    col = (Collection<Object>) f.apply(o);
+                String directive = map.getOrDefault( ARRAY_DIRECTIVE, "#.").toString().trim();
+                ProcessingType pt = ProcessingType.processDirective(directive);
+                Object resp = pt.process(o,true);
+                if ( resp instanceof Collection<?> ){
+                    return ((Collection<Object>) resp).stream();
                 }
-                return col.stream();
+                System.err.printf("Returning Empty Stream : %s %n", identifier());
+                return Stream.empty();
             }
             @Override
             public Predicate<Object> when() {
@@ -131,18 +185,13 @@ public interface MapBasedTransform extends Transformation<Object> {
 
     static GroupTransformation groupTransform( String id, Map<String,Object> map){
 
-        final Function<Object,Object> gk ;
         String s = map.get(GROUP_DIRECTIVE).toString();
-        if ( isXPath(s)){
-            gk = (o) -> ZMethodInterceptor.Default.jxPath(o,false);
-        } else {
-            gk = func(s);
-        }
+        final ProcessingType pt = ProcessingType.processDirective(s);
         return new GroupTransformation() {
 
             @Override
             public String groupKey(Object o) {
-                return gk.apply(o).toString();
+                return pt.process(o,false).toString();
             }
 
             @Override
