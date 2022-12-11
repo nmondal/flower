@@ -30,15 +30,20 @@ jolt_5z:
     Value: "$.value"
 
 
+jolt_12x:
+  _each: "@entities"
+  _group : "#type"
+  "_" : "$.value"
+
 jolt_12z:
   _each: "$.entities"
   _group : "$.type"
   "*" : "*"
 
 
-jolt_13:
+jolt_13x:
   paperBooks:
-    _each: "/books"
-    _when: "'paperback' @ availability"
+    _each: "$.books"
+    _when: "'paperback' @ $.availability"
     "*" : "*"
 

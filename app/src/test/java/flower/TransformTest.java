@@ -104,6 +104,25 @@ public class TransformTest {
     }
 
     @Test
+    public void jolt_12x(){
+        Object o = load( "samples/mappers/j12.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_12x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Object actual = ZMethodInterceptor.Default.jxPath(r, "alpha", false);
+        Assert.assertTrue(actual instanceof List);
+        Assert.assertEquals(((List<?>) actual).size(), 2);
+
+        actual = ZMethodInterceptor.Default.jxPath(r, "beta", false);
+        Assert.assertTrue(actual instanceof List);
+        Assert.assertEquals(((List<?>) actual).size(), 1);
+
+    }
+
+    @Test
     public void jolt_12z(){
         Object o = load( "samples/mappers/j12.json");
         Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_12z");
@@ -119,6 +138,16 @@ public class TransformTest {
         actual = ZMethodInterceptor.Default.jxPath(r, "beta", false);
         Assert.assertTrue(actual instanceof List);
         Assert.assertEquals(((List<?>) actual).size(), 1);
+    }
+
+    @Test
+    public void jolt_13x(){
+        Object o = load( "samples/mappers/j13.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_13x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
 
     }
 }
