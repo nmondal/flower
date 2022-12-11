@@ -30,9 +30,9 @@ jolt_5z:
     Value: "$.value"
 
 
-jolt_12:
-  _each: "./entities"
-  _group : "./type"
+jolt_12z:
+  _each: "$.entities"
+  _group : "$.type"
   "*" : "*"
 
 

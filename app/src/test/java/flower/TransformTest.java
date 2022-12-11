@@ -7,6 +7,7 @@ import org.junit.Test;
 import zoomba.lang.core.interpreter.ZMethodInterceptor;
 import zoomba.lang.core.types.ZTypes;
 
+import java.util.List;
 import java.util.Map;
 
 public class TransformTest {
@@ -99,6 +100,25 @@ public class TransformTest {
         System.out.println(js);
         pathAsserter(r,"Ratings[1]/Name", "design");
         pathAsserter(r,"Ratings[1]/Value", 5);
+
+    }
+
+    @Test
+    public void jolt_12z(){
+        Object o = load( "samples/mappers/j12.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_12z");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Object actual = ZMethodInterceptor.Default.jxPath(r, "alpha", false);
+        Assert.assertTrue(actual instanceof List);
+        Assert.assertEquals(((List<?>) actual).size(), 2);
+
+        actual = ZMethodInterceptor.Default.jxPath(r, "beta", false);
+        Assert.assertTrue(actual instanceof List);
+        Assert.assertEquals(((List<?>) actual).size(), 1);
 
     }
 }
