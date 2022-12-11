@@ -17,12 +17,18 @@ jolt_4z:
     _each: "$.rating.keys"
     "_" : "$"
 
+jolt_5x:
+  Ratings:
+    _each: "@ratings/node()"
+    Name: "$.name.name"
+    Value: "$.value"
 
-jolt_5:
-  ratings:
-    _each: "ratings/node()"
-    Name: "/name()"
-    Value: "./"
+jolt_5z:
+  Ratings:
+    _each: "$.ratings.entries"
+    Name: "$.key"
+    Value: "$.value"
+
 
 jolt_12:
   _each: "./entities"

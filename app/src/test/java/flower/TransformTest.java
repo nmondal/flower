@@ -76,4 +76,29 @@ public class TransformTest {
         pathAsserter(r,"ratingNames[2]", "quality");
 
     }
+
+    @Test
+    public void jolt_5x(){
+        Object o = load( "samples/mappers/j5.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_5x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        pathAsserter(r,"Ratings[1]/Name", "design");
+        pathAsserter(r,"Ratings[1]/Value", 5);
+
+    }
+    @Test
+    public void jolt_5z(){
+        Object o = load( "samples/mappers/j5.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_5z");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        pathAsserter(r,"Ratings[1]/Name", "design");
+        pathAsserter(r,"Ratings[1]/Value", 5);
+
+    }
 }
