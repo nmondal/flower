@@ -52,10 +52,9 @@ public interface Transformation<R> extends Function<Object,R> {
         }
     }
 
+    Predicate<Object> TRUE = (x) -> true;
+
     interface ListTransformation<T> extends Transformation<List<?>> {
-
-        Predicate<Object> TRUE = (x) -> true;
-
         default Predicate<Object> when(){
             return TRUE;
         }
@@ -73,6 +72,26 @@ public interface Transformation<R> extends Function<Object,R> {
             final Transformation<?> ch = child();
             Predicate<Object> when = when();
             return each(o).filter(when).map(ch).collect(Collectors.toList());
+        }
+    }
+
+    interface DictTransformation extends Transformation<Map<?,?>> {
+        default Predicate<Object> when(){
+            return TRUE;
+        }
+
+        default Function<Object,Object> key() { return IDENTITY; }
+
+        default Function<Object,Object> value() { return IDENTITY; }
+
+        default Stream<Object> each(Object o){
+            return Stream.empty();
+        }
+
+        @Override
+        default Map<?,?> apply(Object o) {
+            Predicate<Object> when = when();
+            return each(o).filter(when).collect(Collectors.toMap( key(), value() ));
         }
     }
 

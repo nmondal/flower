@@ -53,6 +53,19 @@ public class TransformTest {
     }
 
     @Test
+    public void jolt_2(){
+        Object o = load( "samples/mappers/j3.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_2");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Assert.assertEquals(4, ((Map<?, ?>) r).size());
+
+    }
+
+    @Test
     public void jolt_4x(){
         Object o = load( "samples/mappers/j2.json");
         Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_4x");

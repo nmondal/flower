@@ -7,6 +7,15 @@ jolt_1:
       Range: 5
   Range: 5
 
+jolt_2:
+  _each : "@//node()[not(node())]"
+  _key  : |
+    x = str( 'rating-%s' , $.name.name )
+    x.replaceAll('.*Rating$', 'rating-primary')
+
+  _value : $.value
+
+
 jolt_4x:
   ratingNames:
     _each: "@rating/node()"

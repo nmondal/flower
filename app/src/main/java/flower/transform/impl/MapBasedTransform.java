@@ -20,6 +20,8 @@ public interface MapBasedTransform extends Transformation<Object> {
 
     String ARRAY_DIRECTIVE = "_each" ;
 
+    String KEY_DIRECTIVE = "_key" ;
+    String VALUE_DIRECTIVE = "_value" ;
     String PRED_DIRECTIVE = "_when" ;
 
     String GROUP_DIRECTIVE = "_group" ;
@@ -111,6 +113,17 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
+    static Stream<Object> stream(Object o, Map<String,Object> map, String id ){
+        String directive = map.getOrDefault( ARRAY_DIRECTIVE, "#.").toString().trim();
+        ProcessingType pt = ProcessingType.processDirective(directive);
+        Object resp = pt.process(o,true);
+        if ( resp instanceof Collection<?> ){
+            return ((Collection<Object>) resp).stream();
+        }
+        System.err.printf("Returning Empty Stream : %s %n", id);
+        return Stream.empty();
+    }
+
     @Override
     default Object apply(Object o) {
         // this is the default, so Object must be treated as expression hence...
@@ -159,14 +172,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         return new ListTransformation<>() {
             @Override
             public Stream<Object> each(Object o) {
-                String directive = map.getOrDefault( ARRAY_DIRECTIVE, "#.").toString().trim();
-                ProcessingType pt = ProcessingType.processDirective(directive);
-                Object resp = pt.process(o,true);
-                if ( resp instanceof Collection<?> ){
-                    return ((Collection<Object>) resp).stream();
-                }
-                System.err.printf("Returning Empty Stream : %s %n", identifier());
-                return Stream.empty();
+                return stream(o, map, id);
             }
             @Override
             public Predicate<Object> when() {
@@ -176,6 +182,56 @@ public interface MapBasedTransform extends Transformation<Object> {
             public Transformation<?> child() {
                 return child;
             }
+            @Override
+            public String identifier() {
+                return id;
+            }
+        };
+    }
+
+    static DictTransformation dictTransform( String id, Map<String,Object> map){
+
+        final Predicate<Object> when;
+        if ( map.containsKey(PRED_DIRECTIVE) ){
+            when = pred( map.get(PRED_DIRECTIVE).toString());
+        } else {
+            when = Transformation.TRUE;
+        }
+        final Function<Object,Object> key;
+        if ( map.containsKey(KEY_DIRECTIVE) ){
+            key = func( map.get(KEY_DIRECTIVE).toString());
+        } else {
+            key = IDENTITY;
+        }
+
+        final Function<Object,Object> value;
+        if ( map.containsKey(VALUE_DIRECTIVE) ){
+            value = func( map.get(VALUE_DIRECTIVE).toString());
+        } else {
+            value = IDENTITY;
+        }
+
+        return new DictTransformation() {
+            @Override
+            public Predicate<Object> when() {
+                return when;
+            }
+
+            @Override
+            public Function<Object, Object> key() {
+                return key;
+            }
+
+            @Override
+            public Function<Object, Object> value() {
+                return value;
+            }
+
+            @Override
+            public Stream<Object> each(Object o) {
+                return stream(o, map, id);
+            }
+
             @Override
             public String identifier() {
                 return id;
@@ -225,6 +281,9 @@ public interface MapBasedTransform extends Transformation<Object> {
             Map<String,Object> map = (Map<String,Object>)obj;
             if ( map.containsKey(GROUP_DIRECTIVE) ){
                 return groupTransform(id, map);
+            }
+            if ( map.containsKey(KEY_DIRECTIVE) ){
+                return dictTransform(id, map);
             }
             if ( map.containsKey(ARRAY_DIRECTIVE) ){
                 return listTransform(id, map);
