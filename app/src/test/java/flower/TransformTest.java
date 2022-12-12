@@ -190,6 +190,22 @@ public class TransformTest {
     }
 
     @Test
+    public void jolt_11x(){
+        Object o = load( "samples/mappers/j11.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_11x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Assert.assertEquals(3, ((Map<?,?>) r).size());
+        Object bi = ((Map<?, ?>) r).get("basket_item");
+        Assert.assertTrue(bi instanceof List);
+        Assert.assertEquals(2, ((List<?>) bi).size());
+
+    }
+
+    @Test
     public void jolt_12x(){
         Object o = load( "samples/mappers/j12.json");
         Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_12x");

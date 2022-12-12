@@ -66,24 +66,25 @@ jolt_7x:
       xpath($,'../hidden') ? 'disabled' : 'enabled'
 
 
+
 jolt_8z:
   bookMap :
     _each: "[ $.data ]"
     _key : "$.clientId"
     _value: "$.clientName"
 
-
 jolt_9x:
   clientIds :
     _each: "#//clientId"
     "*" : "*"
 
-jolt11x:
+jolt_11x:
   retailer_id : "#chainId"
-  store_id : "#resturandId"
+  store_id : "#restaurantId"
   basket_item:
     _each: "#orderItems"
-    _ : "{ $.itemName : $.quantity }"
+    _ : |
+     __ = { $.itemName : $.quantity }
 
 jolt_12x:
   _each: "@entities"
