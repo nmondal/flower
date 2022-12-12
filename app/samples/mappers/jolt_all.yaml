@@ -58,6 +58,14 @@ jolt_6x:
 
   _value : $.value
 
+jolt_7x:
+  clients :
+    _each : "@//clientId"
+    _key  : "$.value"
+    _value: |
+      xpath($,'../hidden') ? 'disabled' : 'enabled'
+
+
 jolt_9x:
   clientIds :
     _each: "#//clientId"
