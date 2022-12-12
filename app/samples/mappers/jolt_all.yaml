@@ -15,6 +15,14 @@ jolt_2:
 
   _value : $.value
 
+jolt_3x:
+  Rating : "#rating-primary"
+  SecondaryRatings:
+    _each: "@//node()"
+    _when: "'primary' !@ $.name.name" 
+    _key: "$.name.name.replace('rating-','')"
+    _value: $.value
+
 
 jolt_4x:
   ratingNames:
@@ -37,6 +45,27 @@ jolt_5z:
     _each: "$.ratings.entries"
     Name: "$.key"
     Value: "$.value"
+
+jolt_6x:
+  _each : "@//node()[not(node())]"
+  _key  : |
+    $.asPath()
+
+  _value : $.value
+
+
+jolt9x:
+  clientIds :
+    _each: "#//clientId"
+    "*" : "*"
+
+
+jolt11x:
+  retailer_id : "#chainId"
+  store_id : "#resturandId"
+  basket_item:
+    _each: "#orderItems"
+    _ : "{ $.itemName : $.quantity }"
 
 
 jolt_12x:

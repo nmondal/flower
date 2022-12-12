@@ -37,6 +37,11 @@ public class TransformTest {
        Assert.assertEquals(expected,actual);
     }
 
+    /* 
+     *
+     *  These are the http://jolt-demo.appspot.com tests  
+     * 
+     */
     @Test
     public void jolt_1(){
         Object o = load( "samples/mappers/j1.json");
@@ -62,6 +67,19 @@ public class TransformTest {
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
         Assert.assertEquals(4, ((Map<?, ?>) r).size());
+
+    }
+
+    @Test
+    public void jolt_3x(){
+        Object o = load( "samples/mappers/j32.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_3x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Assert.assertEquals(2, ((Map<?, ?>) r).size());
 
     }
 
