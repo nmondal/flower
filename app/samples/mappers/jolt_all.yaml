@@ -58,7 +58,7 @@ jolt_6x:
 
   _value : $.value
 
-jolt9x:
+jolt_9x:
   clientIds :
     _each: "#//clientId"
     "*" : "*"

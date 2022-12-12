@@ -143,7 +143,22 @@ public class TransformTest {
         Assert.assertNotNull(r);
         String js = toFormattedJson(r);
         System.out.println(js);
+        Assert.assertTrue(r instanceof Map);
+        Assert.assertEquals(6, ((Map<?, ?>) r).size());
+    }
 
+
+    @Test
+    public void jolt_9x(){
+        Object o = load( "samples/mappers/j9.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_9x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Object actual = ZMethodInterceptor.Default.jxPath(r, "//clientIds", false);
+        Assert.assertTrue(actual instanceof List);
+        Assert.assertEquals(2, ((List<?>) actual).size());
     }
 
     @Test
