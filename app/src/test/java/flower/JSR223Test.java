@@ -2,6 +2,7 @@ package flower;
 
 import flower.workflow.DependencyWorkFlow;
 import flower.workflow.impl.MapDependencyWorkFlow;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -23,7 +24,9 @@ public class JSR223Test {
         return result;
     }
 
+    // TODO in Java 17 there are no JS Engine - https://stackoverflow.com/questions/71481562/use-javascript-scripting-engine-in-java-17
     @Test
+    @Ignore
     public void testDefaultShippedEngines(){
         final Map<String,Object> params = new HashMap<>();
         params.put("x", 1);

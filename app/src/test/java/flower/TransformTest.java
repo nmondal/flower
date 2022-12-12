@@ -40,7 +40,7 @@ public class TransformTest {
     /* 
      *
      *  These are the http://jolt-demo.appspot.com tests  
-     * 
+     *  http://jolt-demo.appspot.com
      */
     @Test
     public void jolt_1(){
@@ -252,4 +252,25 @@ public class TransformTest {
         System.out.println(js);
 
     }
+
+    /**
+     * These are the JSLT failures - where too much code was written to get things done...
+     */
+    @Test
+    public void mapperIssueJSLT(){
+        // https://github.com/schibsted/jslt/discussions/267
+        Object o = load( "samples/mappers/input_data_1.json");
+        Transformation<?> tr = transformation( "samples/mappers/jslt_mapper.yaml", "nested_mapper");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue( r instanceof List<?>);
+        Assert.assertEquals( 8, ((List<?>) r).size());
+        ((List<?>) r).forEach( (item) -> {
+            Assert.assertTrue( item instanceof Map<?,?>);
+            Assert.assertEquals( 6, ((Map<?,?>) item).size());
+        });
+    }
+
 }

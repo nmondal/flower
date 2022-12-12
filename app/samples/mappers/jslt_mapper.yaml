@@ -1,0 +1,15 @@
+
+nested_mapper:
+  _each: "@//products"
+  id : "#id"
+  networkId : "#../../id"
+  networkDescription : "#../../description"
+  productIdentity : "#../id"
+  productCatTypeName : "#../description"
+  minAmount : "#minAmount"
+
+id_collector:
+  _each: "./"
+  _when: size( tokens( body , '\\w+' ) ) > LARGE_ENOUGH
+  _ : postId
+
