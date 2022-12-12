@@ -134,6 +134,18 @@ public class TransformTest {
 
     }
 
+
+    @Test
+    public void jolt_6x(){
+        Object o = load( "samples/mappers/j6.json");
+        Transformation<?> tr = transformation( "samples/mappers/jolt_all.yaml", "jolt_6x");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+
+    }
+
     @Test
     public void jolt_12x(){
         Object o = load( "samples/mappers/j12.json");

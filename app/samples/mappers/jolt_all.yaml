@@ -23,7 +23,6 @@ jolt_3x:
     _key: "$.name.name.replace('rating-','')"
     _value: $.value
 
-
 jolt_4x:
   ratingNames:
     _each: "@rating/node()"
@@ -49,16 +48,20 @@ jolt_5z:
 jolt_6x:
   _each : "@//node()[not(node())]"
   _key  : |
-    $.asPath()
+    p = $.asPath()
+    p = p.replaceAll('[\[\]]','')
+    p = p.replace('@name=','')
+    #(,inx,suf) = p.split("'")
+    inx = int(inx) - 1
+    suf = suf.toLowerCase()
+    str("photo-%d-%s", inx, suf)
 
   _value : $.value
-
 
 jolt9x:
   clientIds :
     _each: "#//clientId"
     "*" : "*"
-
 
 jolt11x:
   retailer_id : "#chainId"
@@ -66,7 +69,6 @@ jolt11x:
   basket_item:
     _each: "#orderItems"
     _ : "{ $.itemName : $.quantity }"
-
 
 jolt_12x:
   _each: "@entities"
@@ -77,7 +79,6 @@ jolt_12z:
   _each: "$.entities"
   _group : "$.type"
   "*" : "*"
-
 
 jolt_13x:
   paperBooks:
