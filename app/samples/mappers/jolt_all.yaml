@@ -66,6 +66,13 @@ jolt_7x:
       xpath($,'../hidden') ? 'disabled' : 'enabled'
 
 
+jolt_8z:
+  bookMap :
+    _each: "[ $.data ]"
+    _key : "$.clientId"
+    _value: "$.clientName"
+
+
 jolt_9x:
   clientIds :
     _each: "#//clientId"
