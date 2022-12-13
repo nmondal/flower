@@ -18,7 +18,7 @@ A most trivial object mapping is just selecting some specified fields of an obje
 A most generic Object mapper involves aggregating multiple objects and then selecting some computed fields to create an object.
 
 Thus most generic object mapper is defined as such.
-Let $O_i$ be the $N$ differerent input objects. 
+Let $O_i$ be the $N$ different input objects. 
 Let $F_j$ be the $M$ different  functions which produce the $M$ fields of the output object - most generally taking the form:
 
 $$
@@ -35,7 +35,7 @@ This  is generic enough to include aggregation. However, we can extend even a si
 ### Industry Standards 
 
 #### SQL 
-Suprisingly, the first generic model for such a system is `Relational Algebra`. The standard $\Pi$  - `project` and $\sigma$  `select` operations naturally showcase object mapping.
+Surprisingly, the first generic model for such a system is `Relational Algebra`. The standard $\Pi$  - `project` and $\sigma$  `select` operations naturally showcase object mapping.
 `SQL` is not Turing Complete.
 
 #### XSLT
@@ -44,9 +44,9 @@ Another useful tool is `xslt`  - a standard that use `xpath` to transform `xml` 
 #### Code 
 By far, the most rampant standard is `just code it`.  This is what industry loves, not because it is effective, because simply speaking it let people add more and more developers and thus - jobs are never out of fashion.
 
-The trouble, of course is lack of declarativeness of `code` approach. While `SQL` and `xslt` both are `code` - they are declarative, and thus defines the `structure`.
+The trouble, of course is lack of declaratives structure in `code`. While `SQL` and `xslt` both are `code` - they are declarative, and thus defines the `structure`.
 
-Given the lack of proper standards for `Object Transform` - or rather as it is nowadays being called `JSON Transform` - there are various alteatives available. References section deals with it.
+Given the lack of proper standards for `Object Transform` - or rather as it is nowadays being called `JSON Transform` - there are various alternatives available. References section deals with it.
 
 
 ### Tenets - Design Principles 
@@ -57,11 +57,13 @@ After looking into the alternatives we figured out they are not `simple`.  The f
 
 #### Declarative 
 
-The system must be declarative, else one can simply `code it`.  System must be configuration driven.
+The system must be declarative, else one can simply `code it`.  System must be configuration driven. 
+See more:
+https://stackoverflow.com/questions/129628/what-is-declarative-programming
 
 #### Provable 
 
-Configurations must be provable by `inspection`.  Once the `engine` is well tested, it must produce precisely what is being asked for.
+Configurations must be provable by `inspection`.  Once the `engine` is well tested, it must produce precisely what is being asked for - much like `SQL`.
 
 #### Re-Usable 
 
@@ -211,14 +213,6 @@ These are some `basic` field mapping which tentatively stating that the object m
 
 we are not sure of `X` and `Y` which are unknown. As one can see, one can put constant values too. In case of string, one must  quote it `"'const'"` .
 
-#### Identity 
-
-Sometimes it is necessary to map the input object as is to the output. This is done using the identity mapper as follows:
-
-```yaml
-identity:
-  "*" : "*"
-```
 
 Any object with identity transform transforms the object into the same object. It does not modify, it pass the input object as is as output.
 
@@ -233,6 +227,33 @@ function_map:
 
 Function map literally takes the object as input, applies the function `f()` onto that object and uses the return value as object mapper.
 
+These examples shows different functions:
+
+```yaml
+const_string:
+  "*" : '"me"'
+other_field:
+  "*" : str($) # string from the context 
+```
+
+
+##### Identity 
+
+A special case of function mapping is the identity function. Sometimes it is necessary to map the input object as is to the output. This is done using the identity mapper as follows:
+
+```yaml
+identity:
+  "*" : "*"
+```
+
+This is identically same as doing:
+
+```yaml
+identity:
+  "*" : "$"
+```
+
+Just that it saves the `expression evaluation` time. 
 
 #### List 
 
@@ -277,13 +298,13 @@ jolt_9x:
 
 Note the usage of the `identity` transform. It is saying use the extracted object ( string ) as is, w/o any modification.  W/O `identity`, it would be impossible to do so.
 
-The same can be achived using ( with waste of compute ) as :
+The same can be achieved using ( with waste of compute ) as :
 
 ```yaml
 jolt_9x:
   clientIds :
     _each: "#//clientId"
-    "_" : "$"
+    "*" : "$"
 ```
 
 in effect, this is the same as above. But it would now evaluate the expression.
