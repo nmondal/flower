@@ -45,6 +45,14 @@ public interface MapBasedTransform extends Transformation<Object> {
                 return tm;
 
         }
+
+        @Override
+        public Transformation<?> transformation(String name) {
+            for ( Map<String,Transformation<?>> repo : lru.values() ){
+                if ( repo.containsKey(name) ) return repo.get(name);
+            }
+            return NULL;
+        }
     };
 
     String EXPLODE_MAPPER_DIRECTIVE = "*" ;
