@@ -455,7 +455,7 @@ ZoomBA is being used as the underlying scripting/expression engine. Intention of
 
 #### XPath 
 
-We suppoer XPATH 1.0 because of the JXPath. The specficiation can be found here:
+We support XPATH 1.0 because of the JXPath. The specification can be found here:
 https://www.w3.org/TR/1999/REC-xpath-19991116/
 
 #### ZoomBA 
@@ -471,6 +471,10 @@ A manual can be found here : https://nmondal.github.io/assets/pdfs/zoomba.pdf
 3. Building Blocks
 	1. https://github.com/apache/commons-jxpath
 	2. https://gitlab.com/non.est.sacra/zoomba/ 
+4. Declarative Paradigm 
+	1. https://pling.jondgoodwin.com/post/declarative-programming/
+	2. https://stackoverflow.com/questions/129628/what-is-declarative-programming
+	
 
 
 
