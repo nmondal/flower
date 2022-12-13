@@ -26,12 +26,12 @@ jolt_3x:
 jolt_4x:
   ratingNames:
     _each: "@rating/node()"
-    "_" : "$.name.name"
+    "*" : "$.name.name"
 
 jolt_4z:
   ratingNames:
     _each: "$.rating.keys"
-    "_" : "$"
+    "*" : "$"
 
 jolt_5x:
   Ratings:
@@ -67,6 +67,7 @@ jolt_7x:
 
 
 
+
 jolt_8z:
   bookMap :
     _each: "[ $.data ]"
@@ -83,13 +84,14 @@ jolt_11x:
   store_id : "#restaurantId"
   basket_item:
     _each: "#orderItems"
-    _ : |
+    "*" : |
      __ = { $.itemName : $.quantity }
+
 
 jolt_12x:
   _each: "@entities"
   _group : "#type"
-  "_" : "$.value"
+  "*" : "$.value"
 
 jolt_12z:
   _each: "$.entities"

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public interface MapBasedTransform extends Transformation<Object> {
 
-    String IDENTITY_DIRECTIVE = "*" ;
+    String EXPLODE_MAPPER_DIRECTIVE = "*" ;
 
     String CONTEXT_OBJECT = "$" ;
 
@@ -25,8 +25,6 @@ public interface MapBasedTransform extends Transformation<Object> {
     String PRED_DIRECTIVE = "_when" ;
 
     String GROUP_DIRECTIVE = "_group" ;
-
-    String SCALAR_DIRECTIVE = "_" ;
 
     Map.Entry<String,Object> entry();
 
@@ -152,15 +150,17 @@ public interface MapBasedTransform extends Transformation<Object> {
 
     static ListTransformation<?> listTransform( String id, Map<String,Object> map){
         final Transformation<?> child ;
-        if ( map.containsKey(IDENTITY_DIRECTIVE) ){
-            child = IDENTITY;
-        } else {
-            if ( map.containsKey(SCALAR_DIRECTIVE ) ){
-                Map.Entry<String,Object> entry = Map.entry(id + ".sc", map.get(SCALAR_DIRECTIVE));
-                child = fromEntry(entry);
+        if ( map.containsKey(EXPLODE_MAPPER_DIRECTIVE) ){
+            Object val = map.get(EXPLODE_MAPPER_DIRECTIVE);
+            String dir = val.toString().trim();
+            if ( EXPLODE_MAPPER_DIRECTIVE.equals(dir) ){
+                child = IDENTITY;
             } else {
-                child = mapTransform(id + ".map", map);
+                Map.Entry<String,Object> entry = Map.entry(id + ".sc", val);
+                child = fromEntry(entry);
             }
+        } else {
+            child = mapTransform(id + ".map", map);
         }
         final Predicate<Object> when;
         if ( map.containsKey(PRED_DIRECTIVE) ){
@@ -273,7 +273,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         Object obj = entry.getValue();
         if ( isPrimitive(obj) ){
             // this is important...
-            if ( IDENTITY_DIRECTIVE.equals(id) && IDENTITY_DIRECTIVE.equals(((String) obj).trim())) return Transformation.IDENTITY;
+            if ( EXPLODE_MAPPER_DIRECTIVE.equals(id) && EXPLODE_MAPPER_DIRECTIVE.equals(((String) obj).trim())) return Transformation.IDENTITY;
             return (MapBasedTransform) () -> entry;
         }
         // now here, must be complex objects...
