@@ -8,6 +8,14 @@ import java.util.stream.Stream;
 
 public interface Transformation<R> extends Function<Object,R> {
 
+    interface TransformationManager{
+
+        Map<String,Transformation<?>> load(String path);
+        default Transformation<?> transformation(String path, String name){
+            return load(path).getOrDefault(name, NULL);
+        }
+    }
+
     String identifier();
 
     Transformation<Object> IDENTITY = new Transformation<>() {

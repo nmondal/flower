@@ -134,21 +134,10 @@ hello_z:
 And then you run it from the code as something like this:
 
 ```java
-public static Transformation<?> transformation(String mapFile, String transformName){
-
-  Object tm = ZTypes.yaml(mapFile,true);
-  Assert.assertTrue( tm instanceof Map );
-  Map<String,Object> transforms = (Map<String, Object>)tm;
-  Object val = transforms.get(transformName);
-  Assert.assertNotNull(val);
-  Map.Entry<String,Object> entry = Map.entry(transformName, val);
-  return MapBasedTransform.fromEntry(entry);
-}
-
 public void someFunc(){
   // and in the code...
   Object o = load( "input.json");
-  Transformation<?> tr = transformation( "mapping.yaml", "hello_x");
+  Transformation<?> tr = MapBasedTransform.MANAGER.transformation( "mapping.yaml", "hello_x");
   Object r = tr.apply(o); // apply the transform
 }
 ```

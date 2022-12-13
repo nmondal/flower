@@ -3,16 +3,49 @@ package flower.transform.impl;
 import flower.transform.Transformation;
 import flower.workflow.impl.DynamicExecution;
 import zoomba.lang.core.interpreter.ZMethodInterceptor;
+import zoomba.lang.core.types.ZTypes;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface MapBasedTransform extends Transformation<Object> {
+
+    static <K,V> Map<K,V> lru(int limit){
+        return new LinkedHashMap<>(){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry eldest) {
+                return size() > limit;
+            }
+        };
+    }
+    TransformationManager MANAGER = new TransformationManager() {
+        final int pathLimit = 10;
+        final Map<String, Map<String,Transformation<?>>> lru = lru(pathLimit);
+        @Override
+        public Map<String, Transformation<?>> load(String path) {
+            if ( lru.containsKey(path) ){
+                return lru.get(path);
+            }
+                Map<String,Object> m;
+                if ( path.endsWith(".json") ){
+                    m = (Map)ZTypes.json(path,true);
+                } else if ( path.endsWith(".yaml")){
+                    m = (Map)ZTypes.yaml(path,true);
+                } else {
+                    return Collections.emptyMap();
+                }
+                Map<String,Transformation<?>> tm = m.entrySet().stream().collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        MapBasedTransform::fromEntry
+                ) );
+                lru.put(path,tm);
+                return tm;
+
+        }
+    };
 
     String EXPLODE_MAPPER_DIRECTIVE = "*" ;
 

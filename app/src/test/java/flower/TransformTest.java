@@ -19,13 +19,10 @@ public class TransformTest {
     }
 
     public static Transformation<?> transformation( String mapFile, String transformName){
-        Object tm = ZTypes.yaml(mapFile,true);
-        Assert.assertTrue( tm instanceof Map );
-        Map<String,Object> transforms = (Map<String, Object>)tm;
-        Object val = transforms.get(transformName);
-        Assert.assertNotNull(val);
-        Map.Entry<String,Object> entry = Map.entry(transformName, val);
-        return MapBasedTransform.fromEntry(entry);
+        Transformation<?> tr = MapBasedTransform.MANAGER.transformation(mapFile,transformName);
+        Assert.assertNotNull(tr);
+        Assert.assertNotEquals( Transformation.NULL, tr );
+        return tr;
     }
 
     public static String toFormattedJson( Object o){
@@ -35,6 +32,12 @@ public class TransformTest {
     public static void pathAsserter(Object o, String path, Object expected){
        Object actual = ZMethodInterceptor.Default.jxPath(o, path, false);
        Assert.assertEquals(expected,actual);
+    }
+
+    @Test
+    public void testInvalidTransform(){
+        Transformation<?> tr = MapBasedTransform.MANAGER.transformation("samples/mappers/jolt_all.yaml", "foo-bar");
+        Assert.assertEquals( Transformation.NULL, tr );
     }
 
     /* 
