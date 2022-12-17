@@ -23,6 +23,9 @@ public interface MapBasedTransform extends Transformation<Object> {
     }
     TransformationManager MANAGER = new TransformationManager() {
         final int pathLimit = 10;
+
+        transient Map<String,Object> context;
+
         final Map<String, Map<String,Transformation<?>>> lru = lru(pathLimit);
         @Override
         public Map<String, Transformation<?>> load(String path) {
@@ -53,11 +56,23 @@ public interface MapBasedTransform extends Transformation<Object> {
             }
             return NULL;
         }
+
+        @Override
+        public Map<String, Object> context() {
+            return context;
+        }
+
+        @Override
+        public void context(Map<String, Object> ctx) {
+            context = ctx;
+        }
     };
 
     String EXPLODE_MAPPER_DIRECTIVE = "*" ;
 
-    String CONTEXT_OBJECT = "$" ;
+    String INPUT_OBJECT = "$" ;
+
+    String CONTEXT_OBJECT = "_$" ;
 
     String ARRAY_DIRECTIVE = "_each" ;
 
@@ -132,12 +147,17 @@ public interface MapBasedTransform extends Transformation<Object> {
         }
     }
 
+    static Map<String,Object> createInput(Object o){
+        Map<String,Object> input = new HashMap<>();
+        input.put(INPUT_OBJECT,o);
+        input.put(CONTEXT_OBJECT, MANAGER.context());
+        return input;
+    }
     static Function<Object,Object>  func( String s){
         DynamicExecution.FileOrString fs = DynamicExecution.FileOrString.string(s);
         Function<Map<String,Object>, Object> f = DynamicExecution.ZMB.function(fs);
         return o -> {
-            Map<String,Object> input = new HashMap<>();
-            input.put(CONTEXT_OBJECT,o);
+            Map<String,Object> input = createInput(o);
             return f.apply(input);
         };
     }
@@ -146,8 +166,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         DynamicExecution.FileOrString fs = DynamicExecution.FileOrString.string(s);
         Predicate<Map<String,Object>> f = DynamicExecution.ZMB.predicate(fs);
         return o -> {
-            Map<String,Object> input = new HashMap<>();
-            input.put(CONTEXT_OBJECT,o);
+            Map<String,Object> input = createInput(o);
             return f.test(input);
         };
     }

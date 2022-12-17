@@ -1,6 +1,6 @@
 id_collector:
   _each: "#/."
   _when: |
-    size( tokens( $.body , '\\w+' ) ) > 30
+    size( tokens( $.body , '\\w+' ) ) > _$.LARGE_WORDS
   "*" : "#postId"
 

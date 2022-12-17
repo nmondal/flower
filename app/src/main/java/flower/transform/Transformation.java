@@ -14,6 +14,10 @@ public interface Transformation<R> extends Function<Object,R> {
 
         Transformation<?> transformation(String name);
 
+        default Map<String,Object> context(){ return Collections.emptyMap(); }
+
+        default void context(Map<String,Object> ctx){ }
+
     }
 
     String identifier();

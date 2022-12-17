@@ -35,7 +35,6 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         Map<String, Object> data = (Map) ZTypes.yaml(fs.content());
         final Object trBody = data.getOrDefault(name, "");
         final String dependsOn = dependencies().iterator().next();
-        // TODO how to pass parameters ? should we even support this?
         Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(name, trBody));
         return params -> {
             final Object input = params.get(dependsOn);
