@@ -46,4 +46,13 @@ public class IOWorkflowTest extends MapWorkFlowTest{
         Map<String,Object> result = testFile( "samples/web/web.yaml", rNode, params );
         assertEquals(true , result.get(STATUS));
     }
+
+    @Test
+    public void webCallWithTransformTest() {
+        final Map<String,Object> params = new HashMap<>();
+        params.put("LARGE_WORDS", 30);
+        final String rNode = "select_large_post_ids_by_mapper";
+        Map<String,Object> result = testFile( "samples/web/web.yaml", rNode, params );
+        assertEquals(true , result.get(STATUS));
+    }
 }

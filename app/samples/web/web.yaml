@@ -20,3 +20,10 @@ nodes:
     body: "@_/large_enough.zm"
     depends: 
       - get_all_comments
+
+  select_large_post_ids_by_mapper:
+    transform:
+      apply: "id_collector"
+      from:  "@_/mapper.yaml"
+    depends:
+      - get_all_comments

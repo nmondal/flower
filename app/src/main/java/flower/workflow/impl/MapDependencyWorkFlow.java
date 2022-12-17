@@ -83,7 +83,11 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         }
 
         default DynamicExecution.FileOrString getContent(final String propName, String defaultValue){
-            String propValue = config().getOrDefault(propName,defaultValue).toString();
+            return getContent(config(), propName, defaultValue);
+        }
+
+       default DynamicExecution.FileOrString getContent(final Map<String,Object> config, final String propName, String defaultValue){
+            String propValue = config.getOrDefault(propName,defaultValue).toString();
             if ( propValue.startsWith( FROM_FILE ) ){
                 propValue = propValue.substring( FROM_FILE.length() );
                 if ( propValue.startsWith( RELATIVE_PATH ) ){
@@ -166,6 +170,10 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         //  try for fork
         ForkNode forkNode = () -> nodeConfig;
         if ( !forkNode.forkConfig().isEmpty() ) return forkNode;
+        // try for Transformer
+        TransformerNode tNode = () -> nodeConfig;
+        if ( !tNode.transformConfig().isEmpty() ) return tNode;
+
         // if nothing happens
         return () -> nodeConfig;
     }
