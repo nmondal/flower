@@ -107,8 +107,6 @@ public interface DependencyWorkFlow {
             contextMemory.put(STATUS, true);
             // constants may be overwritten by input
             contextMemory.putAll(input);
-            // for getting values to transforms.. is this the way???
-            MapBasedTransform.MANAGER.context(contextMemory);
 
             final ExecutorService executorService = Executors.newFixedThreadPool(executorPoolSize(workFlow));
             boolean runNodeNotSubmitted = true;

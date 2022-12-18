@@ -13,14 +13,11 @@ public interface Transformation<R> extends Function<Object,R> {
         Map<String,Transformation<?>> load(String path);
 
         Transformation<?> transformation(String name);
-
-        default Map<String,Object> context(){ return Collections.emptyMap(); }
-
-        default void context(Map<String,Object> ctx){ }
-
     }
 
     String identifier();
+
+    String path();
 
     Transformation<Object> IDENTITY = new Transformation<>() {
         @Override
@@ -31,6 +28,11 @@ public interface Transformation<R> extends Function<Object,R> {
         @Override
         public Object apply(Object o) {
             return o;
+        }
+
+        @Override
+        public String path() {
+            return "/";
         }
     };
 
@@ -43,6 +45,11 @@ public interface Transformation<R> extends Function<Object,R> {
         @Override
         public Object apply(Object o) {
             return null;
+        }
+
+        @Override
+        public String path() {
+            return "/";
         }
     };
 

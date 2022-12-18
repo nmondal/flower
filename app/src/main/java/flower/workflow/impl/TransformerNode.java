@@ -6,6 +6,7 @@ import zoomba.lang.core.types.ZTypes;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
@@ -35,12 +36,17 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         Map<String, Object> data = (Map) ZTypes.yaml(fs.content());
         final Object trBody = data.getOrDefault(name, "");
         final String dependsOn = dependencies().iterator().next();
-        Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(name, trBody));
+        String closureKey  = name + "::" + UUID.randomUUID().toString();
+        Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(name, trBody), closureKey);
         return params -> {
-            final Object input = params.get(dependsOn);
-            final Object resp = transformation.apply(input);
-            return resp;
+            try {
+                MapBasedTransform.CLOSURE.put(closureKey, params);
+                final Object input = params.get(dependsOn);
+                final Object resp = transformation.apply(input);
+                return resp;
+            } finally {
+                MapBasedTransform.CLOSURE.remove(closureKey);
+            }
         };
     }
-
 }
