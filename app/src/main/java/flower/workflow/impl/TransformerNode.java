@@ -13,7 +13,7 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
 
     String TRANSFORM = "transform";
 
-    String NAME = "apply";
+    String TRANSFORM_NAME = "apply";
 
     String LOCATION = "from";
 
@@ -21,8 +21,8 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         return (Map) config().getOrDefault(TRANSFORM, Collections.emptyMap());
     }
 
-    default String name() {
-        return transformConfig().getOrDefault(NAME, "").toString();
+    default String transformName() {
+        return transformConfig().getOrDefault(TRANSFORM_NAME, "").toString();
     }
 
     default DynamicExecution.FileOrString location() {
@@ -31,13 +31,14 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
 
     @Override
     default Function<Map<String, Object>, Object> body() {
-        final String name = name();
+        final String nodeName = name();
+        final String transformName = transformName();
         DynamicExecution.FileOrString fs = location();
         Map<String, Object> data = (Map) ZTypes.yaml(fs.content());
-        final Object trBody = data.getOrDefault(name, "");
+        final Object trBody = data.getOrDefault(transformName, "");
         final String dependsOn = dependencies().iterator().next();
-        String closureKey  = name + "::" + UUID.randomUUID().toString();
-        Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(name, trBody), closureKey);
+        String closureKey  = nodeName + "::" + UUID.randomUUID().toString();
+        Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(transformName, trBody), closureKey);
         return params -> {
             try {
                 MapBasedTransform.CLOSURE.put(closureKey, params);

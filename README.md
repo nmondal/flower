@@ -139,7 +139,7 @@ Henceforth, one does not need to find a specific set of developers : let's call 
 ### Reduction of Development Cost
 
 Previous section raises the bar for *Engine Development* and reduces the development bar for *Business Development* . 
- 
+
 Imagine SQL. The people building SQL would be very less, 10 or less even.
 Folks who would be using SQL to get something done would be in millions.
 
@@ -352,7 +352,7 @@ Input : graph, node , parameter values.
 1. Memory : Mutable Map is being used. Each node creates a variable of the same name where their output is stored.
 2. Execution : Multithreaded - gets executed in a thread-pool, thus parallel processing is default.
 3. Timeout : Execution of individual nodes as well as the whole flow is time bound 
-  
+
 
 #### Scripting 
 
@@ -432,6 +432,65 @@ For these nodes `http` and `https` protocols are supported.
 See:
 1. https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
 2. https://docs.oracle.com/en/java/javase/12/docs/api/java.net.http/java/net/http/HttpClient.html
+
+#### Object Mapper 
+
+One can read more about the object mapper - it deserves it's own manual - you can find it here: [ObjectMapper.md](ObjectMapper.md)
+
+Typical use case of the mapper is shown:
+
+```yaml
+# Get all user ids who chatted a lot on comments
+---
+name: 'gather_chatty_users'
+engine: zmb
+
+params:
+  LARGE_WORDS : int
+
+constants:
+  base : "jsonplaceholder.typicode.com"
+
+nodes:
+
+  get_all_comments:
+    https:
+      url: "#{base}/comments"
+      verb: get
+
+  select_large_post_ids_by_mapper:
+    transform:
+      apply: "id_collector"
+      from:  "@_/mapper.yaml"
+    depends:
+      - get_all_comments
+
+```
+
+This shows that `transform` block defines the `ObjectMapper`.  There are two fields:
+
+##### from 
+
+This defines `from` which external file we should load the mapper.  We do not support inline mapping as of now.  
+
+##### apply 
+
+On that external file, there will be many many mappings. `apply` applies the map with the given name.
+
+Now, into the file `mapper.yaml` it is defined as follows:
+
+```yaml
+id_collector:
+  _each: "#/."
+  _when: |
+    size( tokens( $.body , '\\w+' ) ) > _$.LARGE_WORDS
+  "*" : "#postId"
+
+```
+
+Detail structure of the mapping is scope of the object mapper proper. Important to note that the memory map of the current workflow is available as the variable `_$` ,  and thus the mapper can ( by closure ) access the `param`  :  `LARGE_WORDS`.
+
+
 
 #### Fork 
 
@@ -547,13 +606,17 @@ retry: # counter retry
 ##### Random 
 
 Like a counter, has a counter of failures. Successive calls  are separated by *random* interval spacing - not exceeding : 
+
 $$
 max = 1.5 \times interval
-$$ And not lower than:
+$$ 
+
+And not lower than:
 
 $$
 min = 0.5 \times interval
 $$
+
 The actual gap  between successive calls will be distributed uniformly between these two numbers.
 
 ```yaml
@@ -565,7 +628,7 @@ retry: # random retry
 
 
 ##### Exponential Back-Off
-Like a counter, has a counter of failures. Successive calls  are separated by *exponentially larger* interval spacing  : 
+Like a counter, has a counter of failures. Successive calls  are separated by *exponentially larger* interval spacing  :
 
 $$
 S(n) = S_0 \times e^n 
