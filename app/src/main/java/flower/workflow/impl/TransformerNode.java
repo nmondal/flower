@@ -29,16 +29,38 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         return getContent( transformConfig(), LOCATION, "");
     }
 
+    MapBasedTransformationManager MANAGER = new MapBasedTransformationManager() {
+        final Map<String,Map<String,Object>> cache = MapBasedTransformationManager.lru(42);
+        @Override
+        public Map<String, Transformation<?>> load(String path) {
+            if ( !cache.containsKey(path)){
+                Map<String, Object> data = (Map<String,Object>) ZTypes.yaml(path, true);
+                cache.put(path,data);
+            }
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public Transformation<?> transformation(String name) {
+            String[] arr = name.split("#");
+            final String path = arr[0];
+            if ( !cache.containsKey(path)) return Transformation.NULL;
+            final String closureKey = arr[1];
+            final String transformName = arr[2];
+            final Object trBody = cache.get(path).getOrDefault(transformName, "");
+            return fromEntry (Map.entry(transformName, trBody), closureKey);
+        }
+    };
+
     @Override
     default Function<Map<String, Object>, Object> body() {
         final String nodeName = name();
         final String transformName = transformName();
-        DynamicExecution.FileOrString fs = location();
-        Map<String, Object> data = (Map) ZTypes.yaml(fs.content());
-        final Object trBody = data.getOrDefault(transformName, "");
+        final String path = location().path();;
+        MANAGER.load(path);
         final String dependsOn = dependencies().iterator().next();
         String closureKey  = nodeName + "::" + UUID.randomUUID().toString();
-        Transformation<?> transformation = MapBasedTransformationManager.INSTANCE.fromEntry (Map.entry(transformName, trBody), closureKey);
+        Transformation<?> transformation = MANAGER.transformation( path + "#" + closureKey + "#" + transformName );
         return params -> {
             try {
                 MapBasedTransformationManager.setupClosure (closureKey, params);

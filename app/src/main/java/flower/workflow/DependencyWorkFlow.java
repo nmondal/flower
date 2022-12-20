@@ -136,6 +136,7 @@ public interface DependencyWorkFlow {
                                         Retry retry = curNode.retry();
                                         Function<Map<String,Object>,Object> bodyWithRetry = retry.withRetry( curNode.body() );
                                         Object res = bodyWithRetry.apply(contextMemory);
+                                        //  TODO - BUG - if the result is null, it would crash, so we need to do something
                                         contextMemory.put(nodeName, res);
                                         Logger.info("- [%s]", nodeName);
                                     } catch (Throwable t) {

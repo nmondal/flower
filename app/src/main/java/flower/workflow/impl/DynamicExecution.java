@@ -42,6 +42,11 @@ public interface DynamicExecution {
             }
         }
 
+        public String path(){
+            if ( f == null ) return "";
+            return f.getAbsolutePath();
+        }
+
         public static FileOrString file(@Nonnull String f){
             return new FileOrString( new File(f));
         }
