@@ -27,7 +27,7 @@ public interface MapBasedTransformationManager extends TransformationManager{
         default Object apply(Object o) {
             // this is the default, so Object must be treated as expression hence...
             final String directive = entry().getValue().toString().trim();
-            ProcessingType pt = ProcessingType.processDirective(directive);
+            ProcessingType pt = ((MapBasedTransformationManager)manager()).processDirective(directive);
             return pt.process(o,false, path());
         }
     }
@@ -35,8 +35,6 @@ public interface MapBasedTransformationManager extends TransformationManager{
     String EXPLODE_MAPPER_DIRECTIVE = "*" ;
 
     String INPUT_OBJECT = "$" ;
-
-    String CONTEXT_OBJECT = "_$" ;
 
     String ARRAY_DIRECTIVE = "_each" ;
 
@@ -62,34 +60,8 @@ public interface MapBasedTransformationManager extends TransformationManager{
 
         String pathString();
 
-        static ProcessingType processDirective(String s){
+        MapBasedTransformationManager mgr();
 
-            final boolean isXPath = s.startsWith(XPATH_ONLY);
-            final boolean isXElem = s.startsWith(XPATH_ELEM);
-
-            final String path;
-            if ( isXPath || isXElem ){
-                path = s.substring(1);
-            } else {
-                path = s;
-            }
-            return new ProcessingType() {
-                @Override
-                public boolean isXPath() {
-                    return isXPath;
-                }
-
-                @Override
-                public boolean isXElem() {
-                    return isXElem;
-                }
-
-                @Override
-                public String pathString() {
-                    return path;
-                }
-            };
-        }
 
         default Object process(Object o, boolean multi, String transformPath){
             if ( isXPath() ){
@@ -98,25 +70,52 @@ public interface MapBasedTransformationManager extends TransformationManager{
                 return ZMethodInterceptor.Default.jxElement(o, pathString(), multi );
             }
             else {
-                Function<Object,Object> f = func(pathString(),transformPath);
+                Function<Object,Object> f = mgr().func(pathString(),transformPath);
                 return f.apply(o);
             }
         }
     }
 
-    Map<String,Map<String,Object>> CLOSURE = new ConcurrentHashMap<>();
-    static Map<String,Object> createInput(Object o, String transformPath){
-        Map<String,Object> input = new HashMap<>();
-        String[] arr = transformPath.split("/");
-        String closureKey = arr[0];
-        if ( CLOSURE.containsKey( closureKey ) ){
-            Map<String,Object> ctx = CLOSURE.get(closureKey);
-            input.put(CONTEXT_OBJECT, ctx);
+    default ProcessingType processDirective(String s){
+
+        final boolean isXPath = s.startsWith(ProcessingType.XPATH_ONLY);
+        final boolean isXElem = s.startsWith(ProcessingType.XPATH_ELEM);
+
+        final String path;
+        if ( isXPath || isXElem ){
+            path = s.substring(1);
+        } else {
+            path = s;
         }
+        return new ProcessingType() {
+            @Override
+            public boolean isXPath() {
+                return isXPath;
+            }
+
+            @Override
+            public boolean isXElem() {
+                return isXElem;
+            }
+
+            @Override
+            public String pathString() {
+                return path;
+            }
+
+            @Override
+            public MapBasedTransformationManager mgr() {
+                return MapBasedTransformationManager.this;
+            }
+        };
+    }
+
+    default Map<String,Object> createInput(Object o, String transformPath){
+        Map<String,Object> input = new HashMap<>();
         input.put(INPUT_OBJECT,o);
         return input;
     }
-    static Function<Object,Object>  func( String s, String transformPath){
+    default Function<Object,Object>  func( String s, String transformPath){
         DynamicExecution.FileOrString fs = DynamicExecution.FileOrString.string(s);
         Function<Map<String,Object>, Object> f = DynamicExecution.ZMB.function(fs);
         return o -> {
@@ -125,7 +124,7 @@ public interface MapBasedTransformationManager extends TransformationManager{
         };
     }
 
-    static Predicate<Object> pred(String s, String transformPath){
+    default Predicate<Object> pred(String s, String transformPath){
         DynamicExecution.FileOrString fs = DynamicExecution.FileOrString.string(s);
         Predicate<Map<String,Object>> f = DynamicExecution.ZMB.predicate(fs);
         return o -> {
@@ -136,7 +135,7 @@ public interface MapBasedTransformationManager extends TransformationManager{
 
     default Stream<Object> stream(Object o, Map<String,Object> map, String id , String transformPath ){
         String directive = map.getOrDefault( ARRAY_DIRECTIVE, "#.").toString().trim();
-        ProcessingType pt = ProcessingType.processDirective(directive);
+        ProcessingType pt = processDirective(directive);
         Object resp = pt.process(o,true, transformPath);
         if ( resp instanceof Collection<?>){
             return ((Collection<Object>) resp).stream();
@@ -289,7 +288,7 @@ public interface MapBasedTransformationManager extends TransformationManager{
     default GroupTransformation groupTransform(String id, Map<String,Object> map, String parentPath){
         final String myPath = parentPath + "/" + id ;
         String s = map.get(GROUP_DIRECTIVE).toString();
-        final ProcessingType pt = ProcessingType.processDirective(s);
+        final ProcessingType pt = processDirective(s);
         return new GroupTransformation() {
 
             @Override
@@ -372,15 +371,6 @@ public interface MapBasedTransformationManager extends TransformationManager{
             }
         };
     }
-
-    static void setupClosure(String key, Map<String,Object> closure){
-        CLOSURE.put(key,closure);
-    }
-
-    static void removeClosure(String key){
-        CLOSURE.remove(key);
-    }
-
     MapBasedTransformationManager INSTANCE = new MapBasedTransformationManager() {
         final int pathLimit = 10;
         final Map<String, Map<String,Transformation<?>>> lru = lru(pathLimit);

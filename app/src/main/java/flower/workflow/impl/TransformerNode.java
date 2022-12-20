@@ -5,6 +5,7 @@ import flower.transform.impl.MapBasedTransformationManager;
 import zoomba.lang.core.types.ZTypes;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -16,6 +17,9 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
     String TRANSFORM_NAME = "apply";
 
     String LOCATION = "from";
+
+    String CONTEXT_OBJECT = "_$" ;
+
 
     default Map<String, Object> transformConfig() {
         return (Map) config().getOrDefault(TRANSFORM, Collections.emptyMap());
@@ -29,8 +33,33 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         return getContent( transformConfig(), LOCATION, "");
     }
 
-    MapBasedTransformationManager MANAGER = new MapBasedTransformationManager() {
+    interface WithClosure extends MapBasedTransformationManager {
+        Map<String,Map<String,Object>> closure();
+
+        default Function<Map<String,Object>, Object> applyTransform( String path, String closureKey, String transformName, String inputKey){
+            Transformation<?> transformation =  transformation( path + "#" + closureKey + "#" + transformName );
+            return params -> {
+                try {
+                    closure().put(closureKey, params);
+                    final Object input = params.get(inputKey);
+                    final Object resp = transformation.apply(input);
+                    return resp;
+                } finally {
+                    closure().remove (closureKey);
+                }
+            };
+        }
+    }
+
+    WithClosure MANAGER = new WithClosure() {
         final Map<String,Map<String,Object>> cache = MapBasedTransformationManager.lru(42);
+        final Map<String,Map<String,Object>> closure = new HashMap<>();
+
+        @Override
+        public Map<String, Map<String, Object>> closure() {
+            return closure;
+        }
+
         @Override
         public Map<String, Transformation<?>> load(String path) {
             if ( !cache.containsKey(path)){
@@ -50,6 +79,19 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
             final Object trBody = cache.get(path).getOrDefault(transformName, "");
             return fromEntry (Map.entry(transformName, trBody), closureKey);
         }
+
+        @Override
+        public Map<String,Object> createInput(Object o, String transformPath){
+            Map<String,Object> input = WithClosure.super.createInput(o, transformPath);
+            String[] arr = transformPath.split("/");
+            String closureKey = arr[0];
+            if ( closure.containsKey( closureKey ) ){
+                Map<String,Object> ctx = closure.get(closureKey);
+                input.put(CONTEXT_OBJECT, ctx);
+            }
+            return input;
+        }
+
     };
 
     @Override
@@ -60,16 +102,6 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         MANAGER.load(path);
         final String dependsOn = dependencies().iterator().next();
         String closureKey  = nodeName + "::" + UUID.randomUUID().toString();
-        Transformation<?> transformation = MANAGER.transformation( path + "#" + closureKey + "#" + transformName );
-        return params -> {
-            try {
-                MapBasedTransformationManager.setupClosure (closureKey, params);
-                final Object input = params.get(dependsOn);
-                final Object resp = transformation.apply(input);
-                return resp;
-            } finally {
-                MapBasedTransformationManager.removeClosure(closureKey);
-            }
-        };
+        return MANAGER.applyTransform( path, closureKey, transformName, dependsOn);
     }
 }
