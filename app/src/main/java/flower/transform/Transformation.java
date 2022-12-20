@@ -19,39 +19,34 @@ public interface Transformation<R> extends Function<Object,R> {
 
     String path();
 
-    Transformation<Object> IDENTITY = new Transformation<>() {
-        @Override
-        public String identifier() {
-            return "IDENTITY";
-        }
+    static Transformation<Object> fromFunction( String identifier, Function<Object,Object> f){
+        return new Transformation<>() {
+            @Override
+            public String identifier() {
+                return identifier;
+            }
 
-        @Override
-        public Object apply(Object o) {
-            return o;
-        }
+            @Override
+            public Object apply(Object o) {
+                return f.apply(o);
+            }
 
-        @Override
-        public String path() {
-            return "/";
-        }
-    };
+            @Override
+            public String path() {
+                return "/";
+            }
 
-    Transformation<Object> NULL = new Transformation<>() {
-        @Override
-        public String identifier() {
-            return "NULL";
-        }
+            @Override
+            public TransformationManager manager(){
+                return null;
+            }
+        };
+    }
 
-        @Override
-        public Object apply(Object o) {
-            return null;
-        }
+    Transformation<Object> IDENTITY =  fromFunction( "IDENTITY", (t) ->t );
+    Transformation<Object> NULL = fromFunction("NULL", (t) -> null );
 
-        @Override
-        public String path() {
-            return "/";
-        }
-    };
+    TransformationManager manager();
 
     interface MapTransformation extends Transformation<Map<String,?>> {
         default Map<String,Transformation<?>> children(){

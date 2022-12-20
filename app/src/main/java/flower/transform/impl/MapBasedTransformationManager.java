@@ -166,6 +166,11 @@ public interface MapBasedTransformationManager extends TransformationManager{
             public String path() {
                 return myPath;
             }
+
+            @Override
+            public TransformationManager manager(){
+                return MapBasedTransformationManager.this;
+            }
         };
     }
 
@@ -212,6 +217,11 @@ public interface MapBasedTransformationManager extends TransformationManager{
             @Override
             public String path() {
                 return myPath;
+            }
+
+            @Override
+            public TransformationManager manager(){
+                return MapBasedTransformationManager.this;
             }
         };
     }
@@ -268,6 +278,11 @@ public interface MapBasedTransformationManager extends TransformationManager{
             public String path() {
                 return myPath;
             }
+
+            @Override
+            public TransformationManager manager(){
+                return MapBasedTransformationManager.this;
+            }
         };
     }
 
@@ -296,6 +311,11 @@ public interface MapBasedTransformationManager extends TransformationManager{
             public String path() {
                 return myPath;
             }
+
+            @Override
+            public TransformationManager manager(){
+                return MapBasedTransformationManager.this;
+            }
         };
     }
 
@@ -316,10 +336,13 @@ public interface MapBasedTransformationManager extends TransformationManager{
                 public Map.Entry<String, Object> entry() {
                     return entry;
                 }
-
                 @Override
                 public String path() {
                     return parentPath + "/" + id ;
+                }
+                @Override
+                public TransformationManager manager(){
+                    return MapBasedTransformationManager.this;
                 }
             };
         }
