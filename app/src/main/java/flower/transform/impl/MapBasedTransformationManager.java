@@ -50,11 +50,15 @@ public interface MapBasedTransformationManager extends TransformationManager{
 
         String XPATH_ELEM = "@" ;
 
+        String REDIRECT = "&" ;
+
         boolean isXPath();
 
         boolean isXElem();
 
-        default boolean isOther(){
+        boolean isRedirect();
+
+        default boolean isNonXml(){
             return !isXPath() && !isXElem();
         }
 
@@ -64,13 +68,19 @@ public interface MapBasedTransformationManager extends TransformationManager{
 
 
         default Object process(Object o, boolean multi, String transformPath){
+            final String pathString = pathString();
+
             if ( isXPath() ){
-                return ZMethodInterceptor.Default.jxPath(o, pathString(), multi);
+                return ZMethodInterceptor.Default.jxPath(o, pathString, multi);
             } else if ( isXElem() ){
-                return ZMethodInterceptor.Default.jxElement(o, pathString(), multi );
-            }
-            else {
-                Function<Object,Object> f = mgr().func(pathString(),transformPath);
+                return ZMethodInterceptor.Default.jxElement(o, pathString, multi );
+            } else {
+                final Function<Object,Object> f ;
+                if ( isRedirect() ){
+                    f = (Function<Object, Object>) mgr().transformation(pathString) ;
+                } else {
+                    f = mgr().func(pathString,transformPath);
+                }
                 return f.apply(o);
             }
         }
@@ -80,9 +90,10 @@ public interface MapBasedTransformationManager extends TransformationManager{
 
         final boolean isXPath = s.startsWith(ProcessingType.XPATH_ONLY);
         final boolean isXElem = s.startsWith(ProcessingType.XPATH_ELEM);
+        final boolean isRedirect = s.startsWith(ProcessingType.REDIRECT);
 
         final String path;
-        if ( isXPath || isXElem ){
+        if ( isXPath || isXElem || isRedirect ){
             path = s.substring(1);
         } else {
             path = s;
@@ -96,6 +107,11 @@ public interface MapBasedTransformationManager extends TransformationManager{
             @Override
             public boolean isXElem() {
                 return isXElem;
+            }
+
+            @Override
+            public boolean isRedirect() {
+                return isRedirect;
             }
 
             @Override

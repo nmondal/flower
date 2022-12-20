@@ -290,11 +290,18 @@ public class TransformTest {
     }
 
     @Test
-    @Ignore
     public void referencedMapperTest(){
         Object o = load("samples/mappers/points.json");
         Transformation<?> tr = transformation( "mapper_redirect");
         Object r = tr.apply(o);
         Assert.assertNotNull(r);
+        String js = toFormattedJson(r);
+        System.out.println(js);
+        Assert.assertTrue(r instanceof List<?>);
+        Assert.assertEquals(3, ((List<?>) r).size());
+        ((List<?>) r).forEach((item) -> {
+            Assert.assertTrue(item instanceof Map<?, ?>);
+            Assert.assertEquals(3, ((Map<?, ?>) item).size());
+        });
     }
 }

@@ -9,9 +9,9 @@ nested_mapper:
   minAmount : "#minAmount"
 
 base_mapper:
-  a : "#x"
-  b : "#y"
-  t : "$.x + $.y"
+  x : "#a"
+  y : "#b"
+  t : "$.a + $.b"
 
 mapper_redirect:
   _each: "#."
