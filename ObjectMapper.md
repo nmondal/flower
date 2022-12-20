@@ -437,6 +437,39 @@ jolt_12z:
 
 Notice the use of the `_group` directive which acts like the `_key`. Engine aggregates all values within the same key in a list. 
 
+#### Redirect 
+
+While it is easy to write down a nested mapper - that is, a mapper inside another mapper - sometimes it is better to take out the mapper and `reuse` it. This is given by the   `redirect` directive as follows:
+
+```yaml
+base_mapper:
+  x : "#a"
+  y : "#b"
+  t : "$.a + $.b"
+
+mapper_redirect:
+  _each: "#."
+  "*" : "&base_mapper"
+```
+
+This transform supposed to take in an array of `json` objects like this:
+
+```json
+[
+  { "a" : 10, "b":  20 },
+  { "a" : 30, "b":  40 },
+  { "a" : 30, "b":  10 }
+]
+```
+
+And transform them into another array.
+
+
+
+We note that the `mapper_redirect` use another child mapper - which is used with the `&`  directive - which tells the engine to refer to another mapper `base_mapper` . This way it is reusable. As of now we only support reuse within the same file.    
+
+
+
 
 ### Programming Further  
 
