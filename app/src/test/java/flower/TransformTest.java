@@ -1,9 +1,10 @@
 package flower;
 
 import flower.transform.Transformation;
-import flower.transform.impl.MapBasedTransform;
+import flower.transform.impl.MapBasedTransformationManager;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import zoomba.lang.core.interpreter.ZMethodInterceptor;
 import zoomba.lang.core.types.ZTypes;
@@ -21,17 +22,16 @@ public class TransformTest {
 
     @BeforeClass
     public static void beforeClass() {
-        Map<?, ?> map = MapBasedTransform.MANAGER.load("samples/mappers/jolt_all.yaml");
+        Map<?, ?> map = MapBasedTransformationManager.INSTANCE.load("samples/mappers/jolt_all.yaml");
         Assert.assertNotNull(map);
         Assert.assertFalse(map.isEmpty());
-        map = MapBasedTransform.MANAGER.load("samples/mappers/jslt_mapper.yaml");
+        map = MapBasedTransformationManager.INSTANCE.load("samples/mappers/jslt_mapper.yaml");
         Assert.assertNotNull(map);
         Assert.assertFalse(map.isEmpty());
-
     }
 
     public static Transformation<?> transformation(String transformName) {
-        Transformation<?> tr = MapBasedTransform.MANAGER.transformation(transformName);
+        Transformation<?> tr = MapBasedTransformationManager.INSTANCE.transformation(transformName);
         Assert.assertNotNull(tr);
         Assert.assertNotEquals(Transformation.NULL, tr);
         return tr;
@@ -48,7 +48,7 @@ public class TransformTest {
 
     @Test
     public void testInvalidTransform() {
-        Transformation<?> tr = MapBasedTransform.MANAGER.transformation("foo-bar");
+        Transformation<?> tr = MapBasedTransformationManager.INSTANCE.transformation("foo-bar");
         Assert.assertEquals(Transformation.NULL, tr);
     }
 
@@ -289,4 +289,12 @@ public class TransformTest {
         });
     }
 
+    @Test
+    @Ignore
+    public void referencedMapperTest(){
+        Object o = load("samples/mappers/points.json");
+        Transformation<?> tr = transformation( "mapper_redirect");
+        Object r = tr.apply(o);
+        Assert.assertNotNull(r);
+    }
 }

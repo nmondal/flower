@@ -8,8 +8,13 @@ nested_mapper:
   productCatTypeName : "#../description"
   minAmount : "#minAmount"
 
-id_collector:
-  _each: "./"
-  _when: size( tokens( body , '\\w+' ) ) > LARGE_ENOUGH
-  _ : postId
+base_mapper:
+  a : "#x"
+  b : "#y"
+  t : "$.x + $.y"
+
+mapper_redirect:
+  _each: "#."
+  "*" : "&base_mapper"
+
 

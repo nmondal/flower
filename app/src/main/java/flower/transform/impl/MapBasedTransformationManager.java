@@ -1,6 +1,7 @@
 package flower.transform.impl;
 
 import flower.transform.Transformation;
+import flower.transform.Transformation.*;
 import flower.workflow.impl.DynamicExecution;
 import zoomba.lang.core.interpreter.ZMethodInterceptor;
 import zoomba.lang.core.types.ZTypes;
@@ -12,53 +13,24 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface MapBasedTransform extends Transformation<Object> {
+public interface MapBasedTransformationManager extends TransformationManager{
 
-    static <K,V> Map<K,V> lru(int limit){
-        return new LinkedHashMap<>(){
-            @Override
-            protected boolean removeEldestEntry(Map.Entry eldest) {
-                return size() > limit;
-            }
-        };
+    interface MapBasedTransform extends Transformation<Object> {
+        Map.Entry<String,Object> entry();
+
+        @Override
+        default String identifier() {
+            return entry().getKey();
+        }
+
+        @Override
+        default Object apply(Object o) {
+            // this is the default, so Object must be treated as expression hence...
+            final String directive = entry().getValue().toString().trim();
+            ProcessingType pt = ProcessingType.processDirective(directive);
+            return pt.process(o,false, path());
+        }
     }
-    TransformationManager MANAGER = new TransformationManager() {
-        final int pathLimit = 10;
-
-        final Map<String, Map<String,Transformation<?>>> lru = lru(pathLimit);
-        @Override
-        public Map<String, Transformation<?>> load(String path) {
-            if ( lru.containsKey(path) ){
-                return lru.get(path);
-            }
-            final String myPath = path + "::" ;
-                Map<String,Object> m;
-                if ( path.endsWith(".json") ){
-                    m = (Map)ZTypes.json(path,true);
-                } else if ( path.endsWith(".yaml")){
-                    m = (Map)ZTypes.yaml(path,true);
-                } else {
-                    return Collections.emptyMap();
-                }
-                Map<String,Transformation<?>> tm = m.entrySet().stream().collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> fromEntry(entry, myPath)
-                ) );
-                lru.put(path,tm);
-                return tm;
-
-        }
-
-        @Override
-        public Transformation<?> transformation(String name) {
-            for ( Map<String,Transformation<?>> repo : lru.values() ){
-                if ( repo.containsKey(name) ) return repo.get(name);
-            }
-            return NULL;
-        }
-    };
-
-    Map<String,Map<String,Object>> CLOSURE = new ConcurrentHashMap<>();
 
     String EXPLODE_MAPPER_DIRECTIVE = "*" ;
 
@@ -73,13 +45,6 @@ public interface MapBasedTransform extends Transformation<Object> {
     String PRED_DIRECTIVE = "_when" ;
 
     String GROUP_DIRECTIVE = "_group" ;
-
-    Map.Entry<String,Object> entry();
-
-    @Override
-    default String identifier() {
-        return entry().getKey();
-    }
 
     interface ProcessingType{
 
@@ -139,6 +104,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         }
     }
 
+    Map<String,Map<String,Object>> CLOSURE = new ConcurrentHashMap<>();
     static Map<String,Object> createInput(Object o, String transformPath){
         Map<String,Object> input = new HashMap<>();
         String[] arr = transformPath.split("/");
@@ -159,7 +125,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
-    static Predicate<Object>  pred( String s, String transformPath){
+    static Predicate<Object> pred(String s, String transformPath){
         DynamicExecution.FileOrString fs = DynamicExecution.FileOrString.string(s);
         Predicate<Map<String,Object>> f = DynamicExecution.ZMB.predicate(fs);
         return o -> {
@@ -168,26 +134,18 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
-    static Stream<Object> stream(Object o, Map<String,Object> map, String id , String transformPath ){
+    default Stream<Object> stream(Object o, Map<String,Object> map, String id , String transformPath ){
         String directive = map.getOrDefault( ARRAY_DIRECTIVE, "#.").toString().trim();
         ProcessingType pt = ProcessingType.processDirective(directive);
         Object resp = pt.process(o,true, transformPath);
-        if ( resp instanceof Collection<?> ){
+        if ( resp instanceof Collection<?>){
             return ((Collection<Object>) resp).stream();
         }
         System.err.printf("Returning Empty Stream : %s %n", id);
         return Stream.empty();
     }
 
-    @Override
-    default Object apply(Object o) {
-        // this is the default, so Object must be treated as expression hence...
-        final String directive = entry().getValue().toString().trim();
-        ProcessingType pt = ProcessingType.processDirective(directive);
-        return pt.process(o,false, path());
-    }
-
-    static MapTransformation mapTransform( String id, Map<String,Object> map, String parentPath){
+    default MapTransformation mapTransform(String id, Map<String,Object> map, String parentPath){
 
         final String myPath = parentPath + "/" + id ;
         return new MapTransformation() {
@@ -211,14 +169,14 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
-    static ListTransformation<?> listTransform( String id, Map<String,Object> map, String parentPath){
+    default ListTransformation<?> listTransform(String id, Map<String,Object> map, String parentPath){
         final String myPath = parentPath + "/" + id ;
         final Transformation<?> child ;
         if ( map.containsKey(EXPLODE_MAPPER_DIRECTIVE) ){
             Object val = map.get(EXPLODE_MAPPER_DIRECTIVE);
             String dir = val.toString().trim();
             if ( EXPLODE_MAPPER_DIRECTIVE.equals(dir) ){
-                child = IDENTITY;
+                child = Transformation.IDENTITY;
             } else {
                 Map.Entry<String,Object> entry = Map.entry(id + ".sc", val);
                 child = fromEntry(entry, myPath);
@@ -240,7 +198,7 @@ public interface MapBasedTransform extends Transformation<Object> {
             }
             @Override
             public Predicate<Object> when() {
-               return when;
+                return when;
             }
             @Override
             public Transformation<?> child() {
@@ -258,7 +216,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
-    static DictTransformation dictTransform( String id, Map<String,Object> map, String parentPath){
+    default DictTransformation dictTransform(String id, Map<String,Object> map, String parentPath){
         final String myPath = parentPath + "/" + id ;
 
         final Predicate<Object> when;
@@ -271,17 +229,17 @@ public interface MapBasedTransform extends Transformation<Object> {
         if ( map.containsKey(KEY_DIRECTIVE) ){
             key = func( map.get(KEY_DIRECTIVE).toString(), myPath);
         } else {
-            key = IDENTITY;
+            key = Transformation.IDENTITY;
         }
 
         final Function<Object,Object> value;
         if ( map.containsKey(VALUE_DIRECTIVE) ){
             value = func( map.get(VALUE_DIRECTIVE).toString(), myPath);
         } else {
-            value = IDENTITY;
+            value = Transformation.IDENTITY;
         }
 
-        return new DictTransformation() {
+        return new Transformation.DictTransformation() {
             @Override
             public Predicate<Object> when() {
                 return when;
@@ -313,7 +271,7 @@ public interface MapBasedTransform extends Transformation<Object> {
         };
     }
 
-    static GroupTransformation groupTransform( String id, Map<String,Object> map, String parentPath){
+    default GroupTransformation groupTransform(String id, Map<String,Object> map, String parentPath){
         final String myPath = parentPath + "/" + id ;
         String s = map.get(GROUP_DIRECTIVE).toString();
         final ProcessingType pt = ProcessingType.processDirective(s);
@@ -347,7 +305,7 @@ public interface MapBasedTransform extends Transformation<Object> {
                 o instanceof  Boolean ;
     }
 
-    static Transformation<?> fromEntry(Map.Entry<String,Object> entry, String parentPath){
+    default Transformation<?> fromEntry(Map.Entry<String,Object> entry, String parentPath){
         String id = entry.getKey().trim();
         Object obj = entry.getValue();
         if ( isPrimitive(obj) ){
@@ -380,6 +338,59 @@ public interface MapBasedTransform extends Transformation<Object> {
             return mapTransform(id, map, parentPath);
         }
         System.err.printf("No match for type %s, returning null transformer! %n", obj.getClass());
-        return NULL;
+        return Transformation.NULL;
     }
+
+    static <K,V> Map<K,V> lru(int limit){
+        return new LinkedHashMap<>(){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry eldest) {
+                return size() > limit;
+            }
+        };
+    }
+
+    static void setupClosure(String key, Map<String,Object> closure){
+        CLOSURE.put(key,closure);
+    }
+
+    static void removeClosure(String key){
+        CLOSURE.remove(key);
+    }
+
+    MapBasedTransformationManager INSTANCE = new MapBasedTransformationManager() {
+        final int pathLimit = 10;
+        final Map<String, Map<String,Transformation<?>>> lru = lru(pathLimit);
+
+        @Override
+        public Map<String, Transformation<?>> load(String path) {
+            if ( lru.containsKey(path) ){
+                return lru.get(path);
+            }
+            final String myPath = path + "::" ;
+            Map<String,Object> m;
+            if ( path.endsWith(".json") ){
+                m = (Map) ZTypes.json(path,true);
+            } else if ( path.endsWith(".yaml")){
+                m = (Map)ZTypes.yaml(path,true);
+            } else {
+                return Collections.emptyMap();
+            }
+            Map<String,Transformation<?>> tm = m.entrySet().stream().collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    entry -> fromEntry(entry, myPath)
+            ) );
+            lru.put(path,tm);
+            return tm;
+
+        }
+
+        @Override
+        public Transformation<?> transformation(String name) {
+            for ( Map<String,Transformation<?>> repo : lru.values() ){
+                if ( repo.containsKey(name) ) return repo.get(name);
+            }
+            return Transformation.NULL;
+        }
+    };
 }

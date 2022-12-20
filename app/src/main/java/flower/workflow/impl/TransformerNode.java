@@ -1,7 +1,7 @@
 package flower.workflow.impl;
 
 import flower.transform.Transformation;
-import flower.transform.impl.MapBasedTransform;
+import flower.transform.impl.MapBasedTransformationManager;
 import zoomba.lang.core.types.ZTypes;
 
 import java.util.Collections;
@@ -38,15 +38,15 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         final Object trBody = data.getOrDefault(transformName, "");
         final String dependsOn = dependencies().iterator().next();
         String closureKey  = nodeName + "::" + UUID.randomUUID().toString();
-        Transformation<?> transformation = MapBasedTransform.fromEntry(Map.entry(transformName, trBody), closureKey);
+        Transformation<?> transformation = MapBasedTransformationManager.INSTANCE.fromEntry (Map.entry(transformName, trBody), closureKey);
         return params -> {
             try {
-                MapBasedTransform.CLOSURE.put(closureKey, params);
+                MapBasedTransformationManager.setupClosure (closureKey, params);
                 final Object input = params.get(dependsOn);
                 final Object resp = transformation.apply(input);
                 return resp;
             } finally {
-                MapBasedTransform.CLOSURE.remove(closureKey);
+                MapBasedTransformationManager.removeClosure(closureKey);
             }
         };
     }
