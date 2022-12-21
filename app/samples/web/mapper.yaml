@@ -4,3 +4,14 @@ id_collector:
     size( tokens( $.body , '\\w+' ) ) > _$.LARGE_WORDS
   "*" : "#postId"
 
+arc_id_collector_in:
+  _each: "#/."
+  _when: |
+     xpath($, _$.field_path) @ _$.get_values
+  "*": "#id"
+
+arc_id_collector_eq:
+  _each: "#/."
+  _when: |
+    xpath($, _$.field_path) == _$.value
+  "*": "#id"

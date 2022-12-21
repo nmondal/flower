@@ -1,0 +1,32 @@
+# A basic conditional - showing switch case
+---
+name: 'test-any'
+engine: zmb
+
+params:
+  x : int
+
+nodes:
+  switch_over_x:
+    any:
+      - a
+      - b
+      - c
+  all_over_x:
+    all:
+      - a
+      - b
+      - c
+
+  a:
+    when: x < 10
+    body: "'a'"
+
+  b:
+    when: x < 20
+    body: "'b'"
+  c:
+    when: x < 30
+    body: "'c'"
+
+

@@ -31,4 +31,31 @@ public class ForkTest extends MapWorkFlowTest {
         Collection<?> result = runFork("distribute_unique", 10 );
         assertTrue( result instanceof Set);
     }
+
+    @Test
+    public void testAnyQuantifierOK(){
+        final String rNode = "switch_over_x" ;
+        final Map<String,Object> params = new HashMap<>();
+        params.put("x", 0);
+        Map<String,Object> result = testFile( "samples/fork/matches.yaml", rNode, params);
+        assertEquals(true , result.get(STATUS));
+        assertEquals( "a", result.get(rNode));
+        params.put("x", 15);
+        result = testFile( "samples/fork/matches.yaml", rNode, params);
+        assertEquals(true , result.get(STATUS));
+        assertEquals( "b", result.get(rNode));
+        params.put("x", 25);
+        result = testFile( "samples/fork/matches.yaml", rNode, params);
+        assertEquals(true , result.get(STATUS));
+        assertEquals( "c", result.get(rNode));
+    }
+
+    @Test
+    public void testAnyFailure(){
+        final String rNode = "switch_over_x" ;
+        final Map<String,Object> params = new HashMap<>();
+        params.put("x", 100);
+        Map<String,Object> result = testFile( "samples/fork/matches.yaml", rNode, params);
+        assertEquals(false , result.get(STATUS));
+    }
 }

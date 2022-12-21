@@ -173,7 +173,9 @@ public interface MapDependencyWorkFlow extends DependencyWorkFlow {
         // try for Transformer
         TransformerNode tNode = () -> nodeConfig;
         if ( !tNode.transformConfig().isEmpty() ) return tNode;
-
+        // try for quantifier
+        QuantifierNode qNode = () -> nodeConfig;
+        if ( !qNode.options().isEmpty() ) return qNode;
         // if nothing happens
         return () -> nodeConfig;
     }

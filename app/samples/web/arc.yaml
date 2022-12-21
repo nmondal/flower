@@ -1,0 +1,47 @@
+# Get all user ids who chatted a lot on comments
+---
+name: 'arc-tech-lead-machine-coding'
+engine: zmb
+
+params:
+  field_path: string
+  operator : string
+  value : string
+
+nodes:
+
+  get_all_users:
+    https:
+      url: "https://raw.githubusercontent.com/arcjsonapi/apisampledata/master/api/users"
+      verb: get
+
+  distribute_work:
+    any:
+      - in_node
+      - eq_node
+
+    depends:
+      - get_all_users
+
+  in_node:
+    when : "operator == 'in'"
+    transform:
+      apply: "arc_id_collector_in"
+      from : "@_/mapper.yaml"
+    depends:
+      - get_values
+
+  get_values:
+    body : "set(value.split(','))"
+
+  eq_node:
+    when: "operator == 'equals'"
+    transform:
+      apply: "arc_id_collector_eq"
+      from: "@_/mapper.yaml"
+    depends:
+      - get_all_users
+
+  wrapper:
+    body : |
+      empty(distribute_work) ? [-1] :  distribute_work
