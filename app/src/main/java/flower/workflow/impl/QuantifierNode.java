@@ -31,6 +31,14 @@ public interface QuantifierNode extends MapDependencyWorkFlow.MapFNode {
         return Collections.emptyList();
     }
 
+
+    default Object runNode(DependencyWorkFlow.FNode node, Map<String,Object> memoryMap){
+        Map<String,Object> cowMem = new HashMap<>(memoryMap);
+        // recursion is divine
+        Map<String,Object> resultMem = MapDependencyWorkFlow.MANAGER.run( owner(), node.name(), cowMem);
+        return resultMem.get( node.name());
+    }
+
     @Override
     default Function<Map<String, Object>, Object> body() {
 
@@ -45,10 +53,10 @@ public interface QuantifierNode extends MapDependencyWorkFlow.MapFNode {
                    // we should crash out...
                    throw new UnsupportedOperationException( String.format("No Condition matched on node '%s'!", name()));
                }
-               return on.get().body().apply(memoryMap);
+               return runNode( on.get(), memoryMap);
            }
            // now this is all
-           Map<String,Object> res = stream.parallel().map( node -> Map.entry(node.name() , node.body().apply(memoryMap)))
+           Map<String,Object> res = stream.parallel().map( node -> Map.entry(node.name() , runNode(node, memoryMap)))
                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
            return res;
         };

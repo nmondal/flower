@@ -59,6 +59,7 @@ public class IOWorkflowTest extends MapWorkFlowTest{
         final String opEq = "equals" ;
         final String opIn = "in" ;
 
+        // equals
         final Map<String,Object> params = new HashMap<>();
         params.put("field_path", "username");
         params.put("operator", opEq);
@@ -71,5 +72,15 @@ public class IOWorkflowTest extends MapWorkFlowTest{
         assertTrue( r instanceof List );
         assertEquals( 1, ((List<?>) r).size());
         assertNotEquals( -1, ((List<?>) r).get(0) );
+
+        // in
+        params.put("field_path", "address.city");
+        params.put("operator", opIn);
+        params.put("value", "Mumbai,Kolkata");
+        result = testFile( "samples/web/arc.yaml", rNode, params );
+        assertEquals(true , result.get(STATUS));
+        r = result.get(rNode);
+        assertTrue( r instanceof List );
+
     }
 }

@@ -7,11 +7,15 @@ id_collector:
 arc_id_collector_in:
   _each: "#/."
   _when: |
-     xpath($, _$.field_path) @ _$.get_values
+    s =  _$.get_values
+    path = _$.field_path.replace(".", "/" )
+    x = xpath($, path) 
+    x @ s
   "*": "#id"
 
 arc_id_collector_eq:
   _each: "#/."
   _when: |
-    xpath($, _$.field_path) == _$.value
+    path = _$.field_path.replace(".", "/" )
+    xpath($, path) == _$.value
   "*": "#id"

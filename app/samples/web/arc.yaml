@@ -33,6 +33,7 @@ nodes:
       apply: "arc_id_collector_in"
       from : "@_/mapper.yaml"
     depends:
+      - get_all_users
       - get_values
 
   get_values:
