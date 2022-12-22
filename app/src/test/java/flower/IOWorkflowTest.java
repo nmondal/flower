@@ -9,11 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import static flower.workflow.DependencyWorkFlow.Manager.STATUS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class IOWorkflowTest extends MapWorkFlowTest{
-
 
     @Test
     public void transformTest(){
@@ -54,5 +52,24 @@ public class IOWorkflowTest extends MapWorkFlowTest{
         final String rNode = "select_large_post_ids_by_mapper";
         Map<String,Object> result = testFile( "samples/web/web.yaml", rNode, params );
         assertEquals(true , result.get(STATUS));
+    }
+
+    @Test
+    public void arcLeadFlowTest(){
+        final String opEq = "equals" ;
+        final String opIn = "in" ;
+
+        final Map<String,Object> params = new HashMap<>();
+        params.put("field_path", "username");
+        params.put("operator", opEq);
+        params.put("value", "vinayk");
+
+        final String rNode = "flow_end";
+        Map<String,Object> result = testFile( "samples/web/arc.yaml", rNode, params );
+        assertEquals(true , result.get(STATUS));
+        Object r = result.get(rNode);
+        assertTrue( r instanceof List );
+        assertEquals( 1, ((List<?>) r).size());
+        assertNotEquals( -1, ((List<?>) r).get(0) );
     }
 }

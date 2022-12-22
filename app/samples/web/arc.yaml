@@ -8,12 +8,16 @@ params:
   operator : string
   value : string
 
+constants:
+  base : "raw.githubusercontent.com"
+
 nodes:
 
   get_all_users:
     https:
-      url: "https://raw.githubusercontent.com/arcjsonapi/apisampledata/master/api/users"
+      url: "#{base}/arcjsonapi/apisampledata/master/api/users"
       verb: get
+      format: json
 
   distribute_work:
     any:
@@ -42,6 +46,8 @@ nodes:
     depends:
       - get_all_users
 
-  wrapper:
+  flow_end:
     body : |
       empty(distribute_work) ? [-1] :  distribute_work
+    depends:
+      - distribute_work
