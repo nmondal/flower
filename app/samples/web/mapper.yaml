@@ -7,15 +7,16 @@ id_collector:
 arc_id_collector_in:
   _each: "#/."
   _when: |
-    s =  _$.get_values
-    path = _$.field_path.replace(".", "/" )
-    x = xpath($, path) 
-    x @ s
+    // this is precisely what currying is all about 
+    // https://gitlab.com/non.est.sacra/zoomba/-/blob/master/_wiki/04-Functions.md#currying
+    val = #"$.#{_$.field_path}"
+    val @ _$.get_values
   "*": "#id"
 
 arc_id_collector_eq:
   _each: "#/."
   _when: |
-    path = _$.field_path.replace(".", "/" )
-    xpath($, path) == _$.value
+    // curring... 
+    val = #"$.#{_$.field_path}"
+    val == _$.value
   "*": "#id"
