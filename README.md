@@ -225,26 +225,18 @@ nodes:
 ```
 
 
-This produce the following graph:
+This produce the following `control flow`  graph:
 
-<img src="https://g.gravizo.com/svg?
-digraph G {
-label = &quot;example graph&quot;;
-node [style=filled, shape=rectangle]; 
-a;
-b;
-c;
-d;
-a - style="zoom:80%;" > c;
-b -> c;
-c -> d;
-start -> a;
-start -> b;
-c -> end;
-d -> end;
-start [shape=circle];
-end [shape=circle];
-}" alt="Alt text" />
+```mermaid
+graph TD;
+      s(("start")) --> a;
+      s --> b;
+      a --> c["c := a + b"];
+      b --> c;
+      c --> d["d := c ** 2"];
+      d --> e(("end"));
+      c --> e;
+```
 
 
 
@@ -267,52 +259,39 @@ assertEquals(30, result.get("c"));
 
 ```
 
-One possible execution order in a single processor would be:
+One possible execution order in a `single processor` would be:
 
-```dot
-digraph G {
-label = "Sample 1 Proc Execution";
-node [style=filled, shape=rectangle]; 
-a;
-b;
-c;
-a -> b;
-b -> c;
-start -> a;
-c -> end;
-start [shape=circle];
-end [shape=circle];
-}
+```mermaid
+graph TD;
+      s(("start")) --> a;
+      a --> b;
+      b --> c["c := a + b"];
+      c --> d["d := c ** 2"];
+      d --> e(("end"));
+      c --> e;
 ```
 
-Clearly `b`could have come before `a`.  If we have two processors, then we can do a bit better job of not blocking execution :
+Clearly `b`could have come before `a`.  If we have `two processors`, then we can do a bit better job of not blocking execution unless needed :
 
-```dot
-digraph G {
-  node [style=filled, shape=rectangle];
-  graph [label="Orthogonal edges", splines=ortho, nodesep=1.0]
-  subgraph cluster_0 {
-    style=filled;
-    color=lightgrey;
-    node [style=filled,color=white];
-    a -> c ;
-    label = "process #1";
-  }
-
-  subgraph cluster_1 {
-    node [style=filled];
-    b;
-    label = "process #2";
-    color=blue
-  }
-  start -> a;
-  start -> b;
-  b ->c;
-  c -> end;
-  
-  start [shape=circle];
-  end [shape=circle];
-}
+```mermaid
+graph TD;
+	
+	subgraph "Process #1"
+        a
+        c
+        d
+    end
+    subgraph "Process #2"
+        b	
+    end
+    
+      s(("start")) --> a;
+      s --> b;
+      a --> c["c := a + b"];
+      b --> c;
+      c --> d["d := c ** 2"];
+      d --> e(("end"));
+      c --> e;
 ```
 
 
@@ -328,6 +307,7 @@ It has:
 	2. timeouts
 	3. retries 
 	4. error handling 
+	5. logging 
 2. Relies on compositions of pure functions  
 3. Scripting/expression support via JSR-223 
 
@@ -559,15 +539,21 @@ See : https://www.w3schools.com/sql/sql_distinct.asp
 This node defines the `quantifiers` - both `existential` and `universal`.  From predicate logic we have these two :
 
 
+
 $$
 \exists x \in X \; s.t. \; P(x)
 $$
-This  is existential quantification, there is some x in collection X such that the predicate P() is true. This with a chain can be used to implement control flow over multiple options.
 
+
+This  is existential quantification, there is some x in collection X such that the predicate P() is true. This with a chain can be used to implement control flow over multiple options.
 At the same time :
+
+
 $$
 \forall x \in X \; s.t.\; P(x) \; s.t. \; X \sub Y
 $$
+
+
 Can be used to `select` a subset X from the Y where P(x) is true. This is the generic collection condition. These makes the flower engine Turing Complete and thus capable of universal computation w/o even a Turing complete expression engine. 
 
 This can be used as the following example shows:
@@ -581,12 +567,12 @@ params:
 
 nodes:
   switch_over_x:
-    any:
+    any: # anything matches first will be used 
       - a
       - b
       - c
   all_over_x:
-    all:
+    all: # everything matching would be used 
       - a
       - b
       - c
@@ -622,8 +608,6 @@ The result of the node execution is the result of the selected node.
 ##### Condition 
 
 `when` of the node gets used as the condition. Unfortunately the condition will be evaluated at least 2 times - one for the condition check and another for node execution.
-
- 
 
 
 
