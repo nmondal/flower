@@ -550,7 +550,7 @@ At the same time :
 
 
 $$
-\forall x \in X \; s.t.\; P(x) \; s.t. \; X \sub Y
+\forall x \in X \; s.t.\; P(x) \; s.t. \; X \subseteq Y
 $$
 
 
@@ -608,6 +608,16 @@ The result of the node execution is the result of the selected node.
 ##### Condition 
 
 `when` of the node gets used as the condition. Unfortunately the condition will be evaluated at least 2 times - one for the condition check and another for node execution.
+
+
+
+See more on `Quantification` :
+
+https://en.wikipedia.org/wiki/Universal_quantification
+
+https://en.wikipedia.org/wiki/Existential_quantification
+
+https://www.w3schools.com/sql/sql_select.asp 
 
 
 
