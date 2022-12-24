@@ -227,15 +227,15 @@ nodes:
 
 This produce the following graph:
 
-```dot
+<img src="https://g.gravizo.com/svg?
 digraph G {
-label = "example graph";
+label = &quot;example graph&quot;;
 node [style=filled, shape=rectangle]; 
 a;
 b;
 c;
 d;
-a -> c;
+a - style="zoom:80%;" > c;
 b -> c;
 c -> d;
 start -> a;
@@ -244,9 +244,8 @@ c -> end;
 d -> end;
 start [shape=circle];
 end [shape=circle];
-}
+}" alt="Alt text" />
 
-```
 
 
 Which is the precise flow from `start` to the `end`.
@@ -463,7 +462,7 @@ nodes:
       apply: "id_collector"
       from:  "@_/mapper.yaml"
     depends:
-      - get_all_comments
+      - get_all_comments # this is the source for data for the transform
 
 ```
 
@@ -489,6 +488,10 @@ id_collector:
 ```
 
 Detail structure of the mapping is scope of the object mapper proper. Important to note that the memory map of the current workflow is available as the variable `_$` ,  and thus the mapper can ( by closure ) access the `param`  :  `LARGE_WORDS`.
+
+##### Data Source 
+
+Data source for the transform will be the first dependency node. In the example - `get_all_comments`  is the source of data for the transformation. Clearly one can have multiple dependencies, be careful to specify the data source node as the first one. 
 
 
 
@@ -548,6 +551,81 @@ The name of the variable `x` is defined in var. As we can see the node `dummy_no
 If set to `true` collects the result of this fork operation in a `Set`. Default is `false` so it stores it in a `List`.
 
 See : https://www.w3schools.com/sql/sql_distinct.asp 
+
+
+
+#### Quantifiers 
+
+This node defines the `quantifiers` - both `existential` and `universal`.  From predicate logic we have these two :
+
+
+$$
+\exists x \in X \; s.t. \; P(x)
+$$
+This  is existential quantification, there is some x in collection X such that the predicate P() is true. This with a chain can be used to implement control flow over multiple options.
+
+At the same time :
+$$
+\forall x \in X \; s.t.\; P(x) \; s.t. \; X \sub Y
+$$
+Can be used to `select` a subset X from the Y where P(x) is true. This is the generic collection condition. These makes the flower engine Turing Complete and thus capable of universal computation w/o even a Turing complete expression engine. 
+
+This can be used as the following example shows:
+
+```yaml
+name: 'test-any'
+engine: zmb
+
+params:
+  x : int
+
+nodes:
+  switch_over_x:
+    any:
+      - a
+      - b
+      - c
+  all_over_x:
+    all:
+      - a
+      - b
+      - c
+
+  a:
+    when: x < 10
+    body: "'a'"
+
+  b:
+    when: x < 20
+    body: "'b'"
+  c:
+    when: x < 30
+    body: "'c'"
+
+
+```
+
+##### Quantifier Name 
+
+It is either of `any` or `all`.  
+
+In case of `any` the first node that matches the condition is triggered as a sub workflow.  Careful, if the dependency of such a node is not satisfied, it would trigger a failure. 
+
+The result of the node execution is the result of the selected node.
+
+
+
+`all`  selects all nodes which are evaluated via `when` condition as true and then run them all in parallel - and stores the outcome in a map - for each node execution. That is returned as result.
+
+
+
+##### Condition 
+
+`when` of the node gets used as the condition. Unfortunately the condition will be evaluated at least 2 times - one for the condition check and another for node execution.
+
+ 
+
+
 
 ### Retries 
 
@@ -609,7 +687,7 @@ Like a counter, has a counter of failures. Successive calls  are separated by *r
 
 $$
 max = 1.5 \times interval
-$$ 
+$$
 
 And not lower than:
 
