@@ -4,10 +4,7 @@ import flower.transform.Transformation;
 import flower.transform.impl.MapBasedTransformationManager;
 import zoomba.lang.core.types.ZTypes;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
@@ -37,6 +34,7 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
         Map<String,Map<String,Object>> closure();
 
         default Function<Map<String,Object>, Object> applyTransform( String path, String closureKey, String transformName, String inputKey){
+            load(path);
             Transformation<?> transformation =  transformation( path + "#" + closureKey + "#" + transformName );
             return params -> {
                 try {
@@ -94,14 +92,20 @@ public interface TransformerNode extends MapDependencyWorkFlow.MapFNode {
 
     };
 
+    static String halfBakedULID(){
+        String s1 = String.valueOf(System.nanoTime());
+        String s2 = String.valueOf(System.nanoTime());
+        String s3 = String.valueOf(System.nanoTime());
+        return s1 + "X" + s2 + "Y" + s3 ;
+    }
+
     @Override
     default Function<Map<String, Object>, Object> body() {
         final String nodeName = name();
         final String transformName = transformName();
-        final String path = location().path();;
-        MANAGER.load(path);
+        final String path = location().path();
         final String dependsOn = dependencies().iterator().next();
-        String closureKey  = nodeName + "::" + UUID.randomUUID().toString();
+        String closureKey  = nodeName + "::" + halfBakedULID();
         return MANAGER.applyTransform( path, closureKey, transformName, dependsOn);
     }
 }
