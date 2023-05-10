@@ -4,7 +4,6 @@ import flower.transform.Transformation;
 import flower.transform.impl.MapBasedTransformationManager;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import zoomba.lang.core.interpreter.ZMethodInterceptor;
 import zoomba.lang.core.types.ZTypes;
@@ -30,11 +29,13 @@ public class TransformTest {
         Assert.assertFalse(map.isEmpty());
     }
 
-    public static Transformation<?> transformation(String transformName) {
-        Transformation<?> tr = MapBasedTransformationManager.INSTANCE.transformation(transformName);
+    public static Object  transformAndApply(String transformName, Object o) {
+        Transformation<?> tr = AutoTimer.withTime( () -> MapBasedTransformationManager.INSTANCE.transformation(transformName) );
         Assert.assertNotNull(tr);
         Assert.assertNotEquals(Transformation.NULL, tr);
-        return tr;
+        final Object r = AutoTimer.withTime( () -> tr.apply(o));
+        Assert.assertNotNull(r);
+        return r;
     }
 
     public static String toFormattedJson(Object o) {
@@ -60,9 +61,7 @@ public class TransformTest {
     @Test
     public void jolt_1() {
         Object o = load("samples/mappers/j1.json");
-        Transformation<?> tr = transformation( "jolt_1");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply("jolt_1", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         pathAsserter(r, "Rating", 3);
@@ -75,9 +74,7 @@ public class TransformTest {
     @Test
     public void jolt_2() {
         Object o = load("samples/mappers/j3.json");
-        Transformation<?> tr = transformation( "jolt_2");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_2", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
@@ -88,75 +85,58 @@ public class TransformTest {
     @Test
     public void jolt_3x() {
         Object o = load("samples/mappers/j32.json");
-        Transformation<?> tr = transformation( "jolt_3x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_3x",o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
         Assert.assertEquals(2, ((Map<?, ?>) r).size());
-
     }
 
     @Test
     public void jolt_4x() {
         Object o = load("samples/mappers/j2.json");
-        Transformation<?> tr = transformation( "jolt_4x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_4x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         pathAsserter(r, "ratingNames[1]", "primary");
         pathAsserter(r, "ratingNames[2]", "quality");
-
     }
 
     @Test
     public void jolt_4z() {
         Object o = load("samples/mappers/j2.json");
-        Transformation<?> tr = transformation( "jolt_4z");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_4z", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         pathAsserter(r, "ratingNames[1]", "primary");
         pathAsserter(r, "ratingNames[2]", "quality");
-
     }
 
     @Test
     public void jolt_5x() {
         Object o = load("samples/mappers/j5.json");
-        Transformation<?> tr = transformation( "jolt_5x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_5x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         pathAsserter(r, "Ratings[1]/Name", "design");
         pathAsserter(r, "Ratings[1]/Value", 5);
-
     }
 
     @Test
     public void jolt_5z() {
         Object o = load("samples/mappers/j5.json");
-        Transformation<?> tr = transformation( "jolt_5z");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_5z", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         pathAsserter(r, "Ratings[1]/Name", "design");
         pathAsserter(r, "Ratings[1]/Value", 5);
-
     }
 
 
     @Test
     public void jolt_6x() {
         Object o = load("samples/mappers/j6.json");
-        Transformation<?> tr = transformation( "jolt_6x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_6x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
@@ -167,37 +147,29 @@ public class TransformTest {
     @Test
     public void jolt_7x() {
         Object o = load("samples/mappers/j7.json");
-        Transformation<?> tr = transformation( "jolt_7x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_7x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Object actual = ZMethodInterceptor.Default.jxPath(r, "//clients", false);
         Assert.assertTrue(actual instanceof Map);
         Assert.assertEquals(2, ((Map<?, ?>) actual).size());
-
     }
 
     @Test
     public void jolt_8z() {
         Object o = load("samples/mappers/j8.json");
-        Transformation<?> tr = transformation( "jolt_8z");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_8z", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Object actual = ZMethodInterceptor.Default.jxPath(r, "//bookMap", false);
         Assert.assertTrue(actual instanceof Map);
         Assert.assertEquals(1, ((Map<?, ?>) actual).size());
-
     }
 
     @Test
     public void jolt_9x() {
         Object o = load("samples/mappers/j9.json");
-        Transformation<?> tr = transformation( "jolt_9x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_9x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Object actual = ZMethodInterceptor.Default.jxPath(r, "//clientIds", false);
@@ -208,9 +180,7 @@ public class TransformTest {
     @Test
     public void jolt_11x() {
         Object o = load("samples/mappers/j11.json");
-        Transformation<?> tr = transformation( "jolt_11x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_11x", o );
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
@@ -218,15 +188,12 @@ public class TransformTest {
         Object bi = ((Map<?, ?>) r).get("basket_item");
         Assert.assertTrue(bi instanceof List);
         Assert.assertEquals(2, ((List<?>) bi).size());
-
     }
 
     @Test
     public void jolt_12x() {
         Object o = load("samples/mappers/j12.json");
-        Transformation<?> tr = transformation( "jolt_12x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_12x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
@@ -237,15 +204,12 @@ public class TransformTest {
         actual = ZMethodInterceptor.Default.jxPath(r, "beta", false);
         Assert.assertTrue(actual instanceof List);
         Assert.assertEquals(((List<?>) actual).size(), 1);
-
     }
 
     @Test
     public void jolt_12z() {
         Object o = load("samples/mappers/j12.json");
-        Transformation<?> tr = transformation( "jolt_12z");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_12z", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof Map);
@@ -261,9 +225,7 @@ public class TransformTest {
     @Test
     public void jolt_13x() {
         Object o = load("samples/mappers/j13.json");
-        Transformation<?> tr = transformation( "jolt_13x");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "jolt_13x", o);
         String js = toFormattedJson(r);
         System.out.println(js);
 
@@ -276,9 +238,7 @@ public class TransformTest {
     public void mapperIssueJSLT() {
         // https://github.com/schibsted/jslt/discussions/267
         Object o = load("samples/mappers/input_data_1.json");
-        Transformation<?> tr = transformation( "nested_mapper");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "nested_mapper", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof List<?>);
@@ -292,9 +252,7 @@ public class TransformTest {
     @Test
     public void referencedMapperTest(){
         Object o = load("samples/mappers/points.json");
-        Transformation<?> tr = transformation( "mapper_redirect");
-        Object r = tr.apply(o);
-        Assert.assertNotNull(r);
+        Object r = transformAndApply( "mapper_redirect", o);
         String js = toFormattedJson(r);
         System.out.println(js);
         Assert.assertTrue(r instanceof List<?>);

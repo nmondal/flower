@@ -22,7 +22,7 @@ Let $O_i$ be the $N$ different input objects.
 Let $F_j$ be the $M$ different  functions which produce the $M$ fields of the output object - most generally taking the form:
 
 $$
-F_j := F_j(O_1,O_2,...,O_N) 
+F_j := F_j(O_1,O_2,...,O_N)
 $$
 
 Thus the output object $O_O$ is given by :
