@@ -21,15 +21,12 @@ Thus most generic object mapper is defined as such.
 Let $O_i$ be the $N$ different input objects. 
 Let $F_j$ be the $M$ different  functions which produce the $M$ fields of the output object - most generally taking the form:
 
-$$
-F_j := F_j(O_1,O_2,...,O_N)
-$$
+$F_j := F_j(O_1,O_2,...,O_N)$
 
 Thus the output object $O_O$ is given by :
 
-$$
-O_O := < F_1, F_2,..., F_M > ( O_1,O_2,...,O_N )
-$$
+$O_O := < F_1, F_2,..., F_M > ( O_1,O_2,...,O_N )$
+
 This  is generic enough to include aggregation. However, we can extend even a single object to aggregation by imagining an `AND` Object - which is a tuple $<O_I>$ . Using this virtual tuple object any aggregation is possible. 
 
 ### Industry Standards 
