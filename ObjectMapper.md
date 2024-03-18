@@ -27,7 +27,12 @@ Thus the output object $O_O$ is given by :
 
 $O_O := < F_1, F_2,..., F_M > ( O_1,O_2,...,O_N )$
 
-This  is generic enough to include aggregation. However, we can extend even a single object to aggregation by imagining an `AND` Object - which is a tuple $<O_I>$ . Using this virtual tuple object any aggregation is possible. 
+This  is generic enough to include aggregation. 
+However, we can extend even a single object to aggregation by imagining an `AND` Object - which is a tuple:
+
+$< O_I >$ 
+
+Using this virtual tuple object any aggregation is possible. 
 
 ### Industry Standards 
 
