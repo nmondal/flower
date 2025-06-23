@@ -34,6 +34,7 @@ dependencies {
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13.2'
 
+    implementation 'org.checkerframework:checker:3.49.4'
     /* JSR 223 languages */
     implementation 'org.zoomba-lang:zoomba.lang.core:0.3-SNAPSHOT'
     implementation 'org.apache.groovy:groovy-all:5.0.0-beta-1'

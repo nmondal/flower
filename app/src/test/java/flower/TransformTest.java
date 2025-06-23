@@ -39,7 +39,7 @@ public class TransformTest {
     }
 
     public static String toFormattedJson(Object o) {
-        return ZTypes.jsonPretty(o, true);
+        return ZTypes.jsonFormatted(o, true);
     }
 
     public static void pathAsserter(Object o, String path, Object expected) {
