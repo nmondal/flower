@@ -21,25 +21,24 @@ repositories {
     mavenCentral()
     // And some snapshots too for ZoomBA
     maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots/"
-        mavenContent {
-            snapshotsOnly()
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        // Only search this repository for the specific dependency
+        content {
+            includeModule("org.zoomba-lang", "zoomba.lang.core")
         }
     }
 }
 
 dependencies {
     // Use JUnit test framework.
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 
-    // This dependency is used by the application.
-    implementation 'com.google.guava:guava:30.0-jre'
     /* JSR 223 languages */
-    implementation group: 'org.zoomba-lang', name: 'zoomba.lang.core', version: '0.3-SNAPSHOT'
-    implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.8', ext: 'pom'
-    implementation group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '3.0.8'
-    implementation group: 'org.python', name: 'jython-standalone', version: '2.7.2'
-
+    implementation 'org.zoomba-lang:zoomba.lang.core:0.3-SNAPSHOT'
+    implementation 'org.apache.groovy:groovy-all:5.0.0-beta-1'
+    implementation 'org.apache.groovy:groovy-jsr223:5.0.0-beta-1'
+    implementation 'org.python:jython-standalone:2.7.4'
 }
 
 application {
