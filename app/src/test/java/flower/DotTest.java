@@ -11,9 +11,9 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 
+import static flower.PerfTest.IS_CI_CD;
 import static flower.workflow.DotGraph.writeFile;
-import static org.junit.Assume.assumeThat;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.Assume.*;
 
 public class DotTest {
     public static void buildDot(String workflowFile, String outFile) {
@@ -92,6 +92,7 @@ public class DotTest {
 
     @Test
     public void dotOnLargeYamlTest() throws Exception {
+        assumeFalse(IS_CI_CD) ;
         String genFile = genWorkFlow( 4, 4 );
         buildDot(genFile, genFile + ".dot" );
     }

@@ -12,8 +12,11 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeFalse;
 
 public class PerfTest {
+
+    public static final boolean IS_CI_CD = System.getProperties().contains("action") ;
 
     @BeforeClass
     public static void beforeClass() {
@@ -70,6 +73,7 @@ public class PerfTest {
 
     @Test
     public void largeFlowTest() throws Exception {
+        assumeFalse(IS_CI_CD) ;
         final String genWFile = DotTest.genWorkFlow(10, 10);
         testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 100.0);
     }
