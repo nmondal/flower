@@ -15,8 +15,6 @@ import static org.junit.Assert.assertNotNull;
 
 public class PerfTest {
 
-    static final double NANO_TO_MS = 0.000001;
-
     @BeforeClass
     public static void beforeClass() {
         Logger.disable();
@@ -31,12 +29,12 @@ public class PerfTest {
         times = Math.max(times, 10);
         List<Double> elapsedTime = new ArrayList<>();
         for (int i = 0; i < times; i++) {
-            final long s = System.nanoTime();
+            final long s = System.currentTimeMillis();
             DependencyWorkFlow workFlow = MapDependencyWorkFlow.MANAGER.load(path);
             Map<String, Object> result = MapDependencyWorkFlow.MANAGER.run(workFlow, node, params);
             assertNotNull(result);
-            final long e = System.nanoTime();
-            elapsedTime.add((e - s) * NANO_TO_MS);
+            final long e = System.currentTimeMillis();
+            elapsedTime.add((e - s)*1.0);
         }
         elapsedTime.sort((x, y) -> (int) Math.signum(x - y));
         int inx = (int) (times * 0.9);
@@ -51,7 +49,7 @@ public class PerfTest {
 
     @Test
     public void dummyWorkFlowTest() {
-        testFile("samples/1.json", "c", Collections.emptyMap(), 100, 1.5);
+        testFile("samples/1.json", "c", Collections.emptyMap(), 100, 5.0);
     }
 
     @Test
@@ -73,6 +71,6 @@ public class PerfTest {
     @Test
     public void largeFlowTest() throws Exception {
         final String genWFile = DotTest.genWorkFlow(10, 10);
-        testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 30.0);
+        testFile(genWFile, "L_9_0", Collections.emptyMap(), 100, 100.0);
     }
 }

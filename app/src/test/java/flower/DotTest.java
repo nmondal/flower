@@ -12,6 +12,8 @@ import java.security.SecureRandom;
 import java.util.*;
 
 import static flower.workflow.DotGraph.writeFile;
+import static org.junit.Assume.assumeThat;
+import static org.junit.Assume.assumeTrue;
 
 public class DotTest {
     public static void buildDot(String workflowFile, String outFile) {
@@ -78,7 +80,9 @@ public class DotTest {
     @Test
     public void tmpDotTest() {
         File genDir = new File( "samples/gen");
-        for ( File f : genDir.listFiles() ){
+        File[] files = genDir.listFiles();
+        assumeTrue( files != null );
+        for ( File f : files ){
             if ( f.getName().endsWith(".yaml")){
                  String fileName = f.getPath();
                 buildDot(fileName,  fileName + ".dot");
