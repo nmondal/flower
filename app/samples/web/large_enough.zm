@@ -3,6 +3,7 @@ comes from param :: LARGE_WORDS = 30
 workflow execution :: node name 'get_all_comments'
 */
 concur( get_all_comments , set() ) where {
-  words = tokens( $.o.body, "\\w+" )
+  // latest changes - tokens does not automatically collect tokens
+  words = list( tokens( $.o.body, "\\w+" ) )
   size(words) >= LARGE_WORDS
 } as { str($.o.postId) }

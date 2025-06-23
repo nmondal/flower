@@ -1,7 +1,7 @@
 id_collector:
   _each: "#/."
   _when: |
-    size( tokens( $.body , '\\w+' ) ) > _$.LARGE_WORDS
+    size( list( tokens( $.body , '\\w+' ) ) ) > _$.LARGE_WORDS
   "*" : "#postId"
 
 arc_id_collector_in:

@@ -1,6 +1,7 @@
 package flower.workflow;
 
 import flower.Logger;
+import zoomba.lang.core.operations.Retry;
 import zoomba.lang.core.types.ZTypes;
 
 import javax.annotation.Nonnull;
@@ -134,7 +135,7 @@ public interface DependencyWorkFlow {
                                         // TODO do we need better?
                                         if (!shouldRun) throw new RuntimeException(":when: returned false");
                                         Retry retry = curNode.retry();
-                                        Function<Map<String,Object>,Object> bodyWithRetry = retry.withRetry( curNode.body() );
+                                        Function<Map<String,Object>,Object> bodyWithRetry = retry.function ( curNode.body() );
                                         Object res = bodyWithRetry.apply(contextMemory);
                                         //  TODO - BUG - if the result is null, it would crash, so we need to do something
                                         contextMemory.put(nodeName, res);

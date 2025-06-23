@@ -2,7 +2,7 @@ package flower.workflow.impl;
 
 import flower.Logger;
 import flower.workflow.DependencyWorkFlow;
-import flower.workflow.Retry;
+import zoomba.lang.core.operations.Retry;
 import zoomba.lang.core.types.ZNumber;
 import zoomba.lang.core.types.ZTypes;
 
