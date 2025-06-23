@@ -16,7 +16,8 @@ import static org.junit.Assume.assumeFalse;
 
 public class PerfTest {
 
-    public static final boolean IS_CI_CD = System.getProperties().contains("action") ;
+    public static final boolean IS_CI_CD = Boolean.TRUE.equals(
+            ZTypes.bool(System.getProperty("inCI", "false"),false) );
 
     static {
         System.out.println("***** Running Inside CI/CD ? " + IS_CI_CD );

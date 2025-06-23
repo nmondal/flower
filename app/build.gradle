@@ -48,6 +48,9 @@ application {
 }
 
 test {
+    // to tell that we are in CI or not
+    systemProperty "inCI", System.getProperty("inCI")
+
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
     }
