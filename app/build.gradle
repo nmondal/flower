@@ -46,3 +46,10 @@ application {
     // Define the main class for the application.
     mainClass = 'flower.App'
 }
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+

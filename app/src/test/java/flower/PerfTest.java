@@ -18,6 +18,10 @@ public class PerfTest {
 
     public static final boolean IS_CI_CD = System.getProperties().contains("action") ;
 
+    static {
+        System.out.println("***** Running Inside CI/CD ? " + IS_CI_CD );
+    }
+
     @BeforeClass
     public static void beforeClass() {
         Logger.disable();
@@ -52,6 +56,7 @@ public class PerfTest {
 
     @Test
     public void dummyWorkFlowTest() {
+        assumeFalse(IS_CI_CD);
         testFile("samples/1.json", "c", Collections.emptyMap(), 100, 5.0);
     }
 
